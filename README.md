@@ -89,7 +89,10 @@ Before you begin, ensure you have met the following requirements:
 The project relies on the following major dependencies:
 
 - **D3.js:** A JavaScript library for producing dynamic, interactive data visualizations in web browsers.
-  - **CDN Link:** Included via `<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>`
+  - **CDN Link:** Included via
+    ```js
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    ```
 - **Node.js & Express:** Backend server to handle API requests and serve the frontend.
   - **Note:** Ensure your `package.json` includes necessary scripts and dependencies for running the server.
 
