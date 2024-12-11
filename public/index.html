@@ -437,7 +437,11 @@
     async function shareOnX() {
         try {
             const shareButton = document.querySelector('.share-button');
-            const originalContent = shareButton.innerHTML;
+            if (!shareButton) {
+                throw new Error('Share button not found');
+            }
+
+            const originalButtonContent = shareButton.innerHTML;
             shareButton.disabled = true;
             shareButton.innerHTML = `<span class="loading-spinner"></span>`;
 
@@ -445,87 +449,85 @@
             if (!svgElement) {
                 throw new Error('No visualization found');
             }
-            console.log('SVG element found');
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             const svgData = new XMLSerializer().serializeToString(svgElement);
-            console.log('SVG serialized');
-
             const img = new Image();
             const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(svgBlob);
-            console.log('Created URL for SVG');
 
-            await new Promise((resolve, reject) => {
-                img.onload = function() {
-                    try {
-                        canvas.width = img.width || svgElement.width.baseVal.value;
-                        canvas.height = img.height || svgElement.height.baseVal.value;
-                        ctx.drawImage(img, 0, 0);
-                        URL.revokeObjectURL(url);
-                        console.log('Image drawn to canvas');
-                        resolve();
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
-                img.onerror = (err) => {
-                    console.error('Image loading error:', err);
-                    reject(new Error('Failed to load SVG as image'));
-                };
-                img.src = url;
-            });
+            try {
+                await new Promise((resolve, reject) => {
+                    img.onload = function() {
+                        try {
+                            const width = svgElement.width.baseVal.value || img.width;
+                            const height = svgElement.height.baseVal.value || img.height;
 
-            const imageData = canvas.toDataURL('image/png');
-            console.log('Canvas converted to base64');
+                            canvas.width = width;
+                            canvas.height = height;
 
-            console.log('Sending image to server...');
-            const response = await fetch('/api/upload/image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ imageData })
-            });
-            console.log('Server response received:', response.status);
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, width, height);
 
-            if (!response.ok) {
-                const errorData = await response.text();
-                console.error('Server error response:', errorData);
-                throw new Error(`Failed to upload image: ${errorData}`);
+                            ctx.drawImage(img, 0, 0);
+                            resolve();
+                        } catch (err) {
+                            reject(err);
+                        } finally {
+                            URL.revokeObjectURL(url);
+                        }
+                    };
+                    img.onerror = () => reject(new Error('Failed to load SVG'));
+                    img.src = url;
+                });
+
+                const imageData = canvas.toDataURL('image/png');
+                console.log('Image converted successfully');
+
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ imageData })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    throw new Error(`Upload failed: ${errorData}`);
+                }
+
+                const result = await response.json();
+                if (!result.success || !result.url) {
+                    throw new Error('Invalid response from server');
+                }
+
+                const text = "Check out my VRChat Friend Network visualization!";
+                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(result.url)}`;
+
+                window.open(
+                    twitterUrl,
+                    'Share on X',
+                    `width=550,height=420,left=${(window.innerWidth - 550) / 2},top=${(window.innerHeight - 420) / 2}`
+                );
+
+            } catch (error) {
+                throw error;
+            } finally {
+                shareButton.disabled = false;
+                shareButton.innerHTML = originalButtonContent;
             }
 
-            const result = await response.json();
-            console.log('Upload result:', result);
-
-            if (!result.success) {
-                throw new Error(result.error || 'Upload failed');
-            }
-
-            const shareUrl = new URL(window.location.href);
-            shareUrl.pathname = result.url;
-
-            const text = "Check out my VRChat Friend Network visualization!";
-            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl.toString())}`;
-
-            const width = 550;
-            const height = 420;
-            const left = (window.innerWidth - width) / 2;
-            const top = (window.innerHeight - height) / 2;
-
-            window.open(
-                twitterUrl,
-                'Share on X',
-                `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
-            );
         } catch (error) {
             console.error('Error sharing:', error);
             alert('Failed to share visualization: ' + error.message);
-        } finally {
+
             const shareButton = document.querySelector('.share-button');
-            shareButton.disabled = false;
-            shareButton.innerHTML = originalContent;
+            if (shareButton) {
+                shareButton.disabled = false;
+                shareButton.innerHTML = `<img src="/icon/x_logo.svg" alt="X" class="x-icon">`;
+            }
         }
     }
 
