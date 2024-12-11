@@ -79,22 +79,37 @@ class MetadataService {
         }
     }
 
-    async processDirectory() {
+    async processDirectory(progressCallback) {
         try {
             console.log('Starting directory scan at:', this.imgDir);
             const pngFiles = await this.findPNGFiles(this.imgDir);
-            console.log(`Found ${pngFiles.length} PNG files in total`);
+            const totalFiles = pngFiles.length;
+            console.log(`Found ${totalFiles} PNG files in total`);
+
+            progressCallback({
+                type: 'start',
+                total: totalFiles
+            });
 
             const results = [];
-            for (const file of pngFiles) {
+            for (let i = 0; i < pngFiles.length; i++) {
+                const file = pngFiles[i];
                 try {
-                    console.log(`Processing file: ${file.relativePath}`);
+                    console.log(`Processing file (${i + 1}/${totalFiles}): ${file.relativePath}`);
                     const result = await this.processImage(file.fullPath);
                     results.push({
                         file: file.relativePath,
                         success: true,
                         metadata: result.metadata
                     });
+
+                    progressCallback({
+                        type: 'progress',
+                        current: i + 1,
+                        total: totalFiles,
+                        file: file.relativePath
+                    });
+
                 } catch (error) {
                     console.error(`Error processing ${file.relativePath}:`, error);
                     results.push({
@@ -102,17 +117,21 @@ class MetadataService {
                         success: false,
                         error: error.message
                     });
+
+                    progressCallback({
+                        type: 'progress',
+                        current: i + 1,
+                        total: totalFiles,
+                        file: file.relativePath,
+                        error: true
+                    });
                 }
             }
-
-            const successful = results.filter(r => r.success).length;
-            const failed = results.filter(r => !r.success).length;
-            console.log(`Processing complete. Success: ${successful}, Failed: ${failed}`);
 
             return results;
         } catch (error) {
             console.error('Error in processDirectory:', error);
-            throw new Error(`Failed to process directory: ${error.message}`);
+            throw error;
         }
     }
 }

@@ -6,14 +6,22 @@ function createRouter(metadataController) {
     const router = express.Router();
 
     router.get('/metadata/generate', async (req, res) => {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
         try {
-            await metadataController.generateMetadata(req, res);
+            const sendProgress = (progress) => {
+                res.write(`data: ${JSON.stringify(progress)}\n\n`);
+            };
+
+            const result = await metadataController.generateMetadata(sendProgress);
+            sendProgress({ type: 'complete', ...result });
+            res.end();
         } catch (error) {
             console.error('Router error:', error);
-            res.status(500).json({
-                error: 'Router error',
-                details: error.message
-            });
+            res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+            res.end();
         }
     });
 

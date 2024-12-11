@@ -3,25 +3,20 @@ class MetadataController {
         this.metadataService = metadataService;
     }
 
-    async generateMetadata(req, res) {
+    async generateMetadata(progressCallback) {
         try {
             await this.metadataService.initialize();
-            const results = await this.metadataService.processDirectory();
+            const results = await this.metadataService.processDirectory(progressCallback);
 
-            const summary = {
+            return {
                 total: results.length,
                 successful: results.filter(r => r.success).length,
                 failed: results.filter(r => !r.success).length,
                 details: results
             };
-
-            res.json(summary);
         } catch (error) {
             console.error('Error generating metadata:', error);
-            res.status(500).json({
-                error: 'Failed to generate metadata',
-                details: error.message
-            });
+            throw error;
         }
     }
 }

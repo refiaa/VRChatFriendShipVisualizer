@@ -152,6 +152,17 @@
         .dimmed {
             opacity: 0.2;
         }
+        .progress-status {
+            margin-top: 10px;
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            padding: 0 20px;
+        }
     </style>
 </head>
 <body>
@@ -281,33 +292,55 @@
         try {
             updateButton.disabled = true;
             loadingOverlay.style.display = 'flex';
-            progressStatus.textContent = 'Scanning PNG files...';
+            progressStatus.textContent = 'Initializing...';
             debugDiv.innerHTML = '';
 
-            console.log('Metadata generation started');
-            const response = await fetch('/api/metadata/generate');
-            const result = await response.json();
-            console.log('Metadata generation result:', result);
+            const eventSource = new EventSource('/api/metadata/generate');
 
-            if (result.successful > 0) {
-                progressStatus.textContent = 'Processing network data...';
-                await visualizeNetworkData();
+            eventSource.onmessage = async function(event) {
+                const data = JSON.parse(event.data);
 
-                resultDiv.innerHTML = `
+                switch(data.type) {
+                    case 'start':
+                        progressStatus.textContent = `Starting to process ${data.total} files...`;
+                        break;
+
+                    case 'progress':
+                        progressStatus.textContent = `Processing file ${data.current}/${data.total}`;
+                        if (data.error) {
+                            debugDiv.innerHTML += `<div class="error">Error processing: ${data.file}</div>`;
+                        }
+                        break;
+
+                    case 'complete':
+                        eventSource.close();
+                        progressStatus.textContent = 'Processing network data...';
+                        await visualizeNetworkData();
+
+                        resultDiv.innerHTML = `
                         <h3>Processing Results</h3>
-                        <div class="success">Completed: ${result.successful}</div>
-                        ${result.failed > 0 ? `<div class="error">Failed: ${result.failed}</div>` : ''}
+                        <div class="success">Completed: ${data.successful} / ${data.total}</div>
+                        ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
                     `;
-            } else {
-                resultDiv.innerHTML = '<div class="error">No files processed.</div>';
-            }
+                        break;
+
+                    case 'error':
+                        eventSource.close();
+                        throw new Error(data.error);
+                }
+            };
+
+            eventSource.onerror = function() {
+                eventSource.close();
+                throw new Error('EventSource failed');
+            };
+
         } catch (error) {
             console.error('Error:', error);
             progressStatus.textContent = 'An error occurred';
             resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
         } finally {
             updateButton.disabled = false;
-            loadingOverlay.style.display = 'none';
         }
     }
 
