@@ -33,7 +33,8 @@ const imageController = new ImageController(imageService);
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.static(path.join(__dirname, '../public')));
-app.use('/icon', express.static(path.join(__dirname, 'icon')));
+
+app.use('/icon', express.static(path.join(__dirname, '../public/icon')));
 
 // Router設定
 const apiRouter = createApiRouter(metadataController, imageController);

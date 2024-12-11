@@ -249,6 +249,18 @@
         @keyframes spin {
             to {transform: rotate(360deg);}
         }
+
+        .share-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon {
+            width: 32px;
+            height: 32px;
+        }
+
     </style>
 </head>
 <body>
@@ -276,9 +288,14 @@
                 <button id="updateButton" onclick="generateMetadata()">Update Visualization</button>
                 <button id="stopButton" onclick="stopGeneration()" disabled>Stop</button>
             </div>
-            <button class="share-button" onclick="shareOnX()" aria-label="Share on X">
-                <img src="/icon/x_logo.svg" alt="X" class="x-icon">
-            </button>
+            <div class="share-buttons">
+                <button class="share-button" onclick="exportSVG()" aria-label="Export SVG">
+                    <img src="/icon/download.svg" alt="Export" class="icon">
+                </button>
+                <button class="share-button" onclick="shareOnX()" aria-label="Share on X">
+                    <img src="/icon/x_logo.svg" alt="X" class="x-icon">
+                </button>
+            </div>
         </div>
     </div>
     <div id="graph">
@@ -436,97 +453,143 @@
 
     async function shareOnX() {
         try {
-            const shareButton = document.querySelector('.share-button');
-            if (!shareButton) {
+            const xShareButton = document.querySelector('button[aria-label="Share on X"]');
+            if (!xShareButton) {
                 throw new Error('Share button not found');
             }
 
-            const originalButtonContent = shareButton.innerHTML;
-            shareButton.disabled = true;
-            shareButton.innerHTML = `<span class="loading-spinner"></span>`;
+            const originalContent = xShareButton.innerHTML;
+            xShareButton.disabled = true;
+            xShareButton.innerHTML = `<span class="loading-spinner"></span>`;
 
             const svgElement = document.querySelector('#graph svg');
             if (!svgElement) {
                 throw new Error('No visualization found');
             }
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const img = new Image();
-            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
-            const url = URL.createObjectURL(svgBlob);
+            const { pngData } = await convertSVGToPNG(svgElement);
+            console.log('Image converted successfully');
 
-            try {
-                await new Promise((resolve, reject) => {
-                    img.onload = function() {
-                        try {
-                            const width = svgElement.width.baseVal.value || img.width;
-                            const height = svgElement.height.baseVal.value || img.height;
+            const response = await fetch('/api/upload/image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ imageData: pngData })
+            });
 
-                            canvas.width = width;
-                            canvas.height = height;
-
-                            ctx.fillStyle = '#FFFFFF';
-                            ctx.fillRect(0, 0, width, height);
-
-                            ctx.drawImage(img, 0, 0);
-                            resolve();
-                        } catch (err) {
-                            reject(err);
-                        } finally {
-                            URL.revokeObjectURL(url);
-                        }
-                    };
-                    img.onerror = () => reject(new Error('Failed to load SVG'));
-                    img.src = url;
-                });
-
-                const imageData = canvas.toDataURL('image/png');
-                console.log('Image converted successfully');
-
-                const response = await fetch('/api/upload/image', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ imageData })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.text();
-                    throw new Error(`Upload failed: ${errorData}`);
-                }
-
-                const result = await response.json();
-                if (!result.success || !result.url) {
-                    throw new Error('Invalid response from server');
-                }
-
-                const text = "Check out my VRChat Friend Network visualization!";
-                const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(result.url)}`;
-
-                window.open(
-                    twitterUrl,
-                    'Share on X',
-                    `width=550,height=420,left=${(window.innerWidth - 550) / 2},top=${(window.innerHeight - 420) / 2}`
-                );
-
-            } catch (error) {
-                throw error;
-            } finally {
-                shareButton.disabled = false;
-                shareButton.innerHTML = originalButtonContent;
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Upload failed: ${errorData}`);
             }
+
+            const result = await response.json();
+            if (!result.success || !result.url) {
+                throw new Error('Invalid response from server');
+            }
+
+            const text = "Check out my VRChat Friend Network visualization!";
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(result.url)}`;
+
+            window.open(
+                twitterUrl,
+                'Share on X',
+                `width=550,height=420,left=${(window.innerWidth - 550) / 2},top=${(window.innerHeight - 420) / 2}`
+            );
 
         } catch (error) {
             console.error('Error sharing:', error);
             alert('Failed to share visualization: ' + error.message);
+        } finally {
+            const xShareButton = document.querySelector('button[aria-label="Share on X"]');
+            if (xShareButton) {
+                xShareButton.disabled = false;
+                xShareButton.innerHTML = `<img src="/icon/x_logo.svg" alt="X" class="x-icon">`;
+            }
+        }
+    }
 
-            const shareButton = document.querySelector('.share-button');
-            if (shareButton) {
-                shareButton.disabled = false;
-                shareButton.innerHTML = `<img src="/icon/x_logo.svg" alt="X" class="x-icon">`;
+    async function convertSVGToPNG(svgElement) {
+        if (!svgElement) {
+            throw new Error('No SVG element provided');
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const svgData = new XMLSerializer().serializeToString(svgElement);
+        const img = new Image();
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        try {
+            await new Promise((resolve, reject) => {
+                img.onload = function() {
+                    try {
+                        const width = svgElement.width.baseVal.value || img.width;
+                        const height = svgElement.height.baseVal.value || img.height;
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, width, height);
+
+                        ctx.drawImage(img, 0, 0);
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                img.onerror = () => reject(new Error('Failed to load SVG'));
+                img.src = url;
+            });
+
+            return {
+                canvas,
+                pngData: canvas.toDataURL('image/png'),
+                svgData: svgData
+            };
+        } finally {
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    async function exportSVG() {
+        try {
+            const exportButton = document.querySelector('button[aria-label="Export SVG"]');
+            if (!exportButton) {
+                throw new Error('Export button not found');
+            }
+
+            const originalContent = exportButton.innerHTML;
+            exportButton.disabled = true;
+            exportButton.innerHTML = `<span class="loading-spinner"></span>`;
+
+            const svgElement = document.querySelector('#graph svg');
+            if (!svgElement) {
+                throw new Error('No visualization found');
+            }
+
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `vrchat-network-${Date.now()}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error('Error exporting SVG:', error);
+            alert('Failed to export SVG: ' + error.message);
+        } finally {
+            const exportButton = document.querySelector('button[aria-label="Export SVG"]');
+            if (exportButton) {
+                exportButton.disabled = false;
+                exportButton.innerHTML = `<img src="/icon/download.svg" alt="Export" class="icon">`;
             }
         }
     }
