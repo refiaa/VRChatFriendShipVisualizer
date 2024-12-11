@@ -11,14 +11,52 @@ class MetadataService {
         this.metadataDir = config.metadataDir;
     }
 
+    updateConfig(config) {
+        if (config.imgDir) {
+            this.imgDir = config.imgDir;
+        }
+        if (config.metadataDir) {
+            this.metadataDir = config.metadataDir;
+        }
+    }
+
     async initialize() {
         try {
+            await this.clearMetadataDirectory();
+
             await fs.mkdir(this.metadataDir, { recursive: true });
             console.log('Metadata directory initialized:', this.metadataDir);
         } catch (error) {
-            if (error.code !== 'EEXIST') {
-                throw new Error(`Failed to initialize metadata directory: ${error.message}`);
+            throw new Error(`Failed to initialize metadata directory: ${error.message}`);
+        }
+    }
+
+    async clearMetadataDirectory() {
+        try {
+            const exists = await fs.access(this.metadataDir)
+                .then(() => true)
+                .catch(() => false);
+
+            if (exists) {
+                const deleteRecursive = async (dirPath) => {
+                    const items = await fs.readdir(dirPath, { withFileTypes: true });
+                    for (const item of items) {
+                        const fullPath = path.join(dirPath, item.name);
+                        if (item.isDirectory()) {
+                            await deleteRecursive(fullPath);
+                        } else {
+                            await fs.unlink(fullPath);
+                        }
+                    }
+                    await fs.rmdir(dirPath);
+                };
+
+                await deleteRecursive(this.metadataDir);
+                console.log('Existing metadata directory cleared');
             }
+        } catch (error) {
+            console.error('Error clearing metadata directory:', error);
+            throw error;
         }
     }
 
@@ -47,7 +85,7 @@ class MetadataService {
                 }
             }
         } catch (error) {
-            console.error('Error scanning directory:', directory, error);
+            console.error('Error scanning directory:', error);
         }
 
         return pngFiles;

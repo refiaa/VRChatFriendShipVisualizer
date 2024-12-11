@@ -3,6 +3,10 @@ class MetadataController {
         this.metadataService = metadataService;
     }
 
+    updateConfig(config) {
+        this.metadataService.updateConfig(config);
+    }
+
     async generateMetadata(progressCallback) {
         try {
             await this.metadataService.initialize();
