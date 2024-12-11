@@ -13,6 +13,8 @@ A web-based application that visualizes your VRChat friends network using intera
 
 You can only use photos taken while VRCX is running.
 
+Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
+
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
