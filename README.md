@@ -69,12 +69,12 @@ Before you begin, ensure you have met the following requirements:
 ## Setup
 
 1. **Prepare VRChat Images:**
-   
-   - Create an `img` folder in the root directory of the project if it doesn't exist:
+
+   - Create an `img` folder in the root directory of the project if it doesn't exist, or find path of your VRChat Pictures:
      ```bash
      mkdir img
      ```
-   - Place your VRChat photos inside the `./img` folder or enter the directory path and click `update directory`. Ensure that the images are in a supported format.
+  
 
 ## Usage
 
@@ -86,6 +86,10 @@ Before you begin, ensure you have met the following requirements:
 2. **Access the Application:**
    
    - Open your web browser and navigate to [http://localhost:3000/](http://localhost:3000/) to view the VRChat Friend Network Visualization.
+
+   - Place your VRChat photos inside the `./img` folder or enter the directory path and click `update directory`. Ensure that the images are in a supported format.
+   - And use `Update Visualization` to show Friend Network from your pictures.
+   
 
 ## Dependencies
 
