@@ -5,6 +5,8 @@
 
 ![preview](./image/main.png)
 
+***Names are missing in the example screenshots, they will actually appear in the Active version!***
+
 A web-based application that visualizes your VRChat friends network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
 
 You can only use photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX) is running.
@@ -12,7 +14,6 @@ You can only use photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX
 <div align="center">
 
 ![preview](./image/help.png)
-***Names are missing in the example screenshots, they will actually appear in the Active version!***
 
 Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
 
