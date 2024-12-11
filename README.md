@@ -3,7 +3,7 @@
 
 # VRChat Friend Network
 
-![preview](./image/view.png)
+![preview](./image/main.png)
 
 A web-based application that visualizes your VRChat friends network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
 
