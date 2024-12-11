@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 
-function createRouter(metadataController) {
+function createRouter(metadataController, imageController) {
     const router = express.Router();
 
     router.get('/metadata/generate', async (req, res) => {
@@ -97,6 +97,24 @@ function createRouter(metadataController) {
             res.status(500).json({
                 success: false,
                 error: error.message
+            });
+        }
+    });
+
+    router.post('/upload/image', async (req, res) => {
+        if (!imageController) {
+            return res.status(500).json({
+                error: 'Image controller not initialized'
+            });
+        }
+
+        try {
+            await imageController.uploadImage(req, res);
+        } catch (error) {
+            console.error('Router error:', error);
+            res.status(500).json({
+                error: 'Router error',
+                details: error.message
             });
         }
     });
