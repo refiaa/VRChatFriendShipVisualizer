@@ -25,6 +25,33 @@ function createRouter(metadataController) {
         }
     });
 
+    router.post('/config/directory', async (req, res) => {
+        try {
+            const { directory } = req.body;
+            const absolutePath = directory ? path.resolve(directory) : path.join(__dirname, '../../img');
+
+            const stats = await fs.stat(absolutePath);
+            if (!stats.isDirectory()) {
+                throw new Error('Not a directory');
+            }
+
+            await fs.access(absolutePath, fs.constants.R_OK);
+
+            metadataController.updateConfig({ imgDir: absolutePath });
+
+            res.json({
+                success: true,
+                directory: absolutePath
+            });
+        } catch (error) {
+            console.error('Error updating directory:', error);
+            res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
     router.get('/metadata/files', async (req, res) => {
         try {
             const metadataDir = path.join(__dirname, '../../data/metadata');

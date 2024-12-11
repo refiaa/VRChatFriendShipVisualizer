@@ -152,6 +152,7 @@
         .dimmed {
             opacity: 0.2;
         }
+
         .progress-status {
             margin-top: 10px;
             text-align: center;
@@ -163,12 +164,48 @@
             max-width: 100%;
             padding: 0 20px;
         }
+
+        .directory-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .directory-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            flex-grow: 1;
+            max-width: 500px;
+        }
+
+        .directory-status {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .directory-status.success {
+            color: #28a745;
+        }
+
+        .directory-status.error {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>VRChat Friend Network</h1>
     <div class="controls">
+        <div class="directory-container">
+            <input type="text"
+                   id="directoryInput"
+                   class="directory-input"
+                   placeholder="Enter directory path (default: ./img)">
+            <button onclick="updateDirectory()">Update Directory</button>
+        </div>
         <div class="search-container">
             <input type="text"
                    id="searchInput"
@@ -280,6 +317,56 @@
 
         d3.selectAll('.link')
             .classed('dimmed', false);
+    }
+
+    async function updateDirectory() {
+        const directoryInput = document.getElementById('directoryInput');
+        const directory = directoryInput.value.trim();
+        const updateButton = document.getElementById('updateButton');
+
+        try {
+            updateButton.disabled = true;
+            const response = await fetch('/api/config/directory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ directory })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showDirectoryStatus('Directory updated successfully', 'success');
+                directoryInput.value = result.directory;
+            } else {
+                showDirectoryStatus(`Failed to update directory: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showDirectoryStatus(`Error updating directory: ${error.message}`, 'error');
+        } finally {
+            updateButton.disabled = false;
+        }
+    }
+
+    function showDirectoryStatus(message, type) {
+        const containerDiv = document.querySelector('.directory-container');
+
+        const existingStatus = containerDiv.querySelector('.directory-status');
+        if (existingStatus) {
+            existingStatus.remove();
+        }
+
+        const statusDiv = document.createElement('div');
+        statusDiv.className = `directory-status ${type}`;
+        statusDiv.textContent = message;
+
+        containerDiv.appendChild(statusDiv);
+
+        setTimeout(() => {
+            statusDiv.remove();
+        }, 3000);
     }
 
     async function generateMetadata() {
