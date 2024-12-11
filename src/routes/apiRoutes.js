@@ -88,6 +88,19 @@ function createRouter(metadataController) {
         }
     });
 
+    router.post('/metadata/stop', async (req, res) => {
+        try {
+            await metadataController.stopGeneration();
+            res.json({ success: true });
+        } catch (error) {
+            console.error('Error stopping metadata generation:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    });
+
     return router;
 }
 

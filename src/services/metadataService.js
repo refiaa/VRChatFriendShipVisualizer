@@ -119,6 +119,7 @@ class MetadataService {
 
     async processDirectory(progressCallback) {
         try {
+            this.stopProcessing = false;
             console.log('Starting directory scan at:', this.imgDir);
             const pngFiles = await this.findPNGFiles(this.imgDir);
             const totalFiles = pngFiles.length;
@@ -131,6 +132,10 @@ class MetadataService {
 
             const results = [];
             for (let i = 0; i < pngFiles.length; i++) {
+                if (this.stopProcessing) {
+                    throw new Error('Generation stopped');
+                }
+
                 const file = pngFiles[i];
                 try {
                     console.log(`Processing file (${i + 1}/${totalFiles}): ${file.relativePath}`);
@@ -149,6 +154,10 @@ class MetadataService {
                     });
 
                 } catch (error) {
+                    if (this.stopProcessing) {
+                        throw new Error('Generation stopped');
+                    }
+
                     console.error(`Error processing ${file.relativePath}:`, error);
                     results.push({
                         file: file.relativePath,
@@ -170,6 +179,8 @@ class MetadataService {
         } catch (error) {
             console.error('Error in processDirectory:', error);
             throw error;
+        } finally {
+            this.stopProcessing = false;
         }
     }
 }
