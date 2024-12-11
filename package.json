@@ -1,0 +1,36 @@
+{
+  "name": "vrchatfriendshipvisualizer",
+  "version": "1.0.0",
+  "description": "VRChat friendship network visualization tool",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js --ignore 'data/*' --ignore 'public/*'"
+  },
+  "keywords": [
+    "vrchat",
+    "network",
+    "visualization"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "data/*",
+      "public/*",
+      "*.json"
+    ],
+    "watch": [
+      "src/"
+    ],
+    "ext": "js"
+  }
+}
