@@ -72,7 +72,7 @@ Before you begin, ensure you have met the following requirements:
      ```bash
      mkdir img
      ```
-   - Place all your VRChat photos inside the `./img` folder. Ensure that the images are in a supported format (e.g., `.png`, `.jpg`).
+   - Place your VRChat photos inside the `./img` folder or enter the directory path and click `update directory`. Ensure that the images are in a supported format.
 
 ## Usage
 
