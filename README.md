@@ -12,6 +12,7 @@ You can only use photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX
 <div align="center">
 
 ![preview](./image/help.png)
+***Names are missing in the example screenshots, they will actually appear in the Active version!***
 
 Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
 
