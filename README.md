@@ -34,6 +34,7 @@ Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be 
 - **Player Name Masking:** Toggle to mask player names for privacy.
 - **Responsive Design:** Accessible and functional across various screen sizes.
 - **Error Handling:** Graceful handling of errors with detailed debug information.
+- **Share and Download** You can download image by SVG or share to the twitter via `tmpfiles`
 
 ## Prerequisites
 
