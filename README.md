@@ -11,6 +11,8 @@
 
 A web-based application that visualizes your VRChat friends network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
 
+You can only use photos taken while VRCX is running.
+
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
