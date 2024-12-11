@@ -20,6 +20,8 @@
     "fs-extra": "^11.2.0"
   },
   "devDependencies": {
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
     "nodemon": "^3.1.7"
   },
   "nodemonConfig": {
