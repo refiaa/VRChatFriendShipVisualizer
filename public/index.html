@@ -319,11 +319,33 @@
             const files = await fetch('/api/metadata/files').then(res => res.json());
             console.log(`${files.length} metadata files found`);
 
-            const allMetadata = await Promise.all(
-                files.map(file =>
-                    fetch(`/api/metadata/file/${file}`).then(res => res.json())
-                )
-            );
+            const allMetadata = [];
+            const concurrencyLimit = 5;
+            let index = 0;
+
+            async function fetchFile() {
+                while (index < files.length) {
+                    const file = files[index++];
+                    try {
+                        const res = await fetch(`/api/metadata/file/${file}`);
+                        if (!res.ok) {
+                            throw new Error(`Failed to fetch file: ${file}`);
+                        }
+                        const data = await res.json();
+                        allMetadata.push(data);
+                    } catch (error) {
+                        console.error(`Error fetching file ${file}:`, error);
+                    }
+                }
+            }
+
+            const workers = [];
+            for (let i = 0; i < concurrencyLimit; i++) {
+                workers.push(fetchFile());
+            }
+
+            await Promise.all(workers);
+
             console.log('Metadata loading completed');
 
             const playerInfoMap = new Map();
@@ -459,7 +481,7 @@
                 .force('y', d3.forceY(height / 2).strength(0.03))
                 .velocityDecay(0.3);
 
-            const link = g.append('g')
+            const linkElements = g.append('g')
                 .selectAll('line')
                 .data(links)
                 .join('line')
@@ -488,14 +510,14 @@
                     d.fy = null;
                 });
 
-            const node = g.append('g')
+            const nodeElements = g.append('g')
                 .selectAll('g')
                 .data(nodes)
                 .join('g')
                 .attr('class', 'node')
                 .call(drag);
 
-            node.append('circle')
+            nodeElements.append('circle')
                 .attr('r', d => Math.sqrt(d.count) * 8 + 5)
                 .style('fill', d => colorScale(d.count))
                 .style('stroke', '#fff')
@@ -503,7 +525,7 @@
                 .style('stroke-opacity', 0.8)
                 .style('fill-opacity', 0.7);
 
-            node.append('text')
+            nodeElements.append('text')
                 .text(d => d.name)
                 .attr('x', d => Math.sqrt(d.count) * 8 + 8)
                 .attr('y', 5)
@@ -515,7 +537,7 @@
                 .attr('class', 'tooltip')
                 .style('opacity', 0);
 
-            node.on('mouseover', function(event, d) {
+            nodeElements.on('mouseover', function(event, d) {
                 const connectedIds = new Set();
                 const connectionInfo = new Map();
 
@@ -536,13 +558,13 @@
                     }
                 });
 
-                link.style('stroke-opacity', l =>
+                linkElements.style('stroke-opacity', l =>
                     (l.source.id === d.id || l.target.id === d.id)
                         ? Math.min(0.9, l.strength + 0.3)
                         : (l.strength <= 0.2 ? 0.1 : 0.2)
                 );
 
-                node.style('opacity', n =>
+                nodeElements.style('opacity', n =>
                     connectedIds.has(n.id) || n.id === d.id ? 1 : 0.3
                 );
 
@@ -565,23 +587,23 @@
                     .join('<br/>');
 
                 tooltip.html(`
-                    <strong>${d.name}</strong><br/>
-                    Total Appearances: ${d.count}<br/>
-                    Compared to Average: ${(d.count / avgAppearances * 100).toFixed(1)}%<br/>
-                    <br/>
-                    Connected Players:<br/>
-                    ${connections}
-                `)
+                <strong>${d.name}</strong><br/>
+                Total Appearances: ${d.count}<br/>
+                Compared to Average: ${(d.count / avgAppearances * 100).toFixed(1)}%<br/>
+                <br/>
+                Connected Players:<br/>
+                ${connections}
+            `)
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 28) + 'px');
             })
                 .on('mouseout', function() {
-                    link.style('stroke-opacity', d => {
+                    linkElements.style('stroke-opacity', d => {
                         if (d.strength <= 0.2) return 0.1;
                         if (d.strength <= 0.5) return 0.2;
                         return 0.4;
                     });
-                    node.style('opacity', 1);
+                    nodeElements.style('opacity', 1);
 
                     tooltip.transition()
                         .duration(500)
@@ -598,13 +620,13 @@
                 .call(zoom.transform, d3.zoomIdentity);
 
             simulation.on('tick', () => {
-                link
+                linkElements
                     .attr('x1', d => d.source.x)
                     .attr('y1', d => d.source.y)
                     .attr('x2', d => d.target.x)
                     .attr('y2', d => d.target.y);
 
-                node.attr('transform', d => `translate(${d.x},${d.y})`);
+                nodeElements.attr('transform', d => `translate(${d.x},${d.y})`);
             });
 
         } catch (error) {
@@ -614,12 +636,12 @@
             const debugDiv = document.getElementById('debug');
             if (debugDiv) {
                 debugDiv.innerHTML = `
-                    <div class="error">
-                        <strong>Error Details:</strong><br/>
-                        ${error.message}<br/>
-                        ${error.stack}
-                    </div>
-                `;
+                <div class="error">
+                    <strong>Error Details:</strong><br/>
+                    ${error.message}<br/>
+                    ${error.stack}
+                </div>
+            `;
             }
 
             throw error;
@@ -630,6 +652,7 @@
             }
         }
     }
+
 </script>
 </body>
 </html>
