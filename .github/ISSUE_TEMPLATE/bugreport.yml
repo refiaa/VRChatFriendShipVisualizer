@@ -1,0 +1,99 @@
+name: Bug Report
+description: Create a report to help us improve the VRChat Friend Network visualization tool.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 🐞 Bug reports help improve the VRChat Friend Network visualization tool!
+
+        * ❔ For questions, help, ideas, or feature requests, please use the [Discussions](https://github.com/refiaa/VRChatFriendShipVisualizer/discussions) tab.
+
+        * Before submitting a bug report, please search [existing issues](https://github.com/refiaa/VRChatFriendShipVisualizer/issues) to avoid duplicates.
+
+        * Please provide detailed information to help us understand and resolve the issue efficiently.
+  - type: input
+    attributes:
+      label: VRChat Friend Network Version
+      description: Which version of the application are you using? Check package.json or git commit hash.
+      placeholder: "v1.0.0 or commit hash"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Node.js Version
+      description: Output of `node --version`
+      placeholder: "v16.14.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Operating System
+      description: Which OS are you using?
+      placeholder: "Windows 10, Ubuntu 20.04, macOS Monterey"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Browser & Version
+      description: Which browser and version are you using to view the visualization?
+      placeholder: "Chrome 120.0.6099.109"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: How can we reproduce this issue? Include exact steps.
+      placeholder: |
+        1. Start the server with `npm run dev`
+        2. Navigate to 'http://localhost:3000'
+        3. Upload images to './img' folder
+        4. Click on '...'
+        5. Observe error
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "The graph should display connections between players..."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include any error messages or unexpected behavior.
+      placeholder: "The graph failed to render and console showed errors..."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Server Logs
+      description: Include relevant server logs (from terminal where you run npm run dev)
+      placeholder: "Paste server logs here..."
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Browser Console Errors
+      description: Include any relevant browser console errors (F12 > Console)
+      placeholder: "Paste browser console errors here..."
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Image Processing Details
+      description: If the issue is related to image processing, provide details about the images
+      placeholder: |
+        - Number of images: 
+        - Image format(s):
+        - Were images taken with VRCX running?
+        - Screenshot helper status:
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here. **Ensure no personal information or VRChat usernames are included.**
+    validations:
+      required: false
