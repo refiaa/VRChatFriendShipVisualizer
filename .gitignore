@@ -80,6 +80,6 @@ node_modules/
 data/metadata/
 .env
 .DS_Store
-*.png
+img/
 
 .idea/
