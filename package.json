@@ -4,8 +4,9 @@
   "description": "VRChat friendship network visualization tool",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js --ignore 'data/*' --ignore 'public/*'"
+    "start": "node dist/app.js",
+    "dev": "nodemon --exec ts-node src/app.ts --ignore 'data/*' --ignore 'public/*'",
+    "build": "tsc"
   },
   "keywords": [
     "vrchat",
@@ -22,9 +23,15 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.2",
+    "@types/node-fetch": "^2.6.12",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   },
   "nodemonConfig": {
     "ignore": [
@@ -35,6 +42,6 @@
     "watch": [
       "src/"
     ],
-    "ext": "js"
+    "ext": "js,ts"
   }
 }
