@@ -287,3 +287,22 @@ button:disabled {
     margin-left: 10px;
     vertical-align: middle;
 }
+
+.no-data-placeholder text {
+    font-family: Arial, sans-serif;
+}
+
+.no-data-placeholder .main-message {
+    font-size: 24px;
+    fill: #6c757d;
+    font-weight: bold;
+}
+
+.no-data-placeholder .sub-message {
+    font-size: 16px;
+    fill: #6c757d;
+}
+
+.no-data-placeholder rect {
+    fill: #f8f9fa;
+}
