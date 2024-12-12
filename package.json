@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/form-data": "^2.5.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.2",
     "@types/node-fetch": "^2.6.12",

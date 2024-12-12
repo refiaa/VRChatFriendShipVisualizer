@@ -1,11 +1,10 @@
-// tmpfilesを利用しています。
+import fetch from 'node-fetch';
+import FormData from 'form-data';
 
-class ImageService {
-    constructor() {
-        this.UPLOAD_URL = 'https://tmpfiles.org/api/v1/upload';
-    }
+export class ImageService {
+    private UPLOAD_URL: string = 'https://tmpfiles.org/api/v1/upload';
 
-    async saveImage(base64Data) {
+    async saveImage(base64Data: string): Promise<string> {
         try {
             console.log('Receiving image data...');
             const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -13,15 +12,13 @@ class ImageService {
                 throw new Error('Invalid base64 data');
             }
 
-            const binaryData = atob(matches[2]);
-            const uint8Array = new Uint8Array(binaryData.length);
-            for (let i = 0; i < binaryData.length; i++) {
-                uint8Array[i] = binaryData.charCodeAt(i);
-            }
-            const blob = new Blob([uint8Array], { type: 'image/png' });
+            const buffer = Buffer.from(matches[2], 'base64');
 
             const formData = new FormData();
-            formData.append('file', blob, 'network.png');
+            formData.append('file', buffer, {
+                filename: 'network.png',
+                contentType: 'image/png'
+            });
 
             console.log('Uploading to tmpfiles.org...');
             const response = await fetch(this.UPLOAD_URL, {
@@ -51,5 +48,3 @@ class ImageService {
         }
     }
 }
-
-module.exports = ImageService;
