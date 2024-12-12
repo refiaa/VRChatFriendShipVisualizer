@@ -1,14 +1,22 @@
-class MetadataController {
-    constructor(metadataService) {
-        this.metadataService = metadataService;
-        this.isGenerating = false;
-    }
+import { MetadataService } from '../services/metadataService';
+import { Config, ProgressCallback } from '../types';
 
-    updateConfig(config) {
+export class MetadataController {
+    private isGenerating: boolean = false;
+
+    constructor(private metadataService: MetadataService) {}
+
+    updateConfig(config: Partial<Config>): void {
         this.metadataService.updateConfig(config);
     }
 
-    async generateMetadata(progressCallback) {
+    async generateMetadata(progressCallback: ProgressCallback): Promise<{
+        total?: number;
+        successful?: number;
+        failed?: number;
+        details?: any[];
+        stopped?: boolean;
+    }> {
         try {
             this.isGenerating = true;
             await this.metadataService.initialize();
@@ -21,7 +29,7 @@ class MetadataController {
                 details: results
             };
         } catch (error) {
-            if (error.message === 'Generation stopped') {
+            if (error instanceof Error && error.message === 'Generation stopped') {
                 await this.metadataService.clearMetadataDirectory();
                 return {
                     stopped: true
@@ -34,11 +42,9 @@ class MetadataController {
         }
     }
 
-    async stopGeneration() {
+    async stopGeneration(): Promise<void> {
         if (this.isGenerating) {
             this.metadataService.stopProcessing = true;
         }
     }
 }
-
-module.exports = MetadataController;

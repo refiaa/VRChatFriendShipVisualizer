@@ -1,9 +1,10 @@
-class ImageController {
-    constructor(imageService) {
-        this.imageService = imageService;
-    }
+import { Request, Response } from 'express';
+import { ImageService } from '../services/imageService';
 
-    async uploadImage(req, res) {
+export class ImageController {
+    constructor(private imageService: ImageService) {}
+
+    async uploadImage(req: Request, res: Response): Promise<void> {
         try {
             const { imageData } = req.body;
             if (!imageData) {
@@ -16,10 +17,8 @@ class ImageController {
             console.error('Error uploading image:', error);
             res.status(500).json({
                 success: false,
-                error: error.message
+                error: error instanceof Error ? error.message : 'Unknown error'
             });
         }
     }
 }
-
-module.exports = ImageController;

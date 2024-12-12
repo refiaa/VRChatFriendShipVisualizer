@@ -1,21 +1,24 @@
-const fs = require('fs').promises;
-const path = require('path');
+import { promises as fs } from 'fs';
+import path from 'path';
+import { PNGChunk } from '../types';
 
-class PNGParser {
-    constructor(filePath) {
+export class PNGParser {
+    private filePath: string;
+
+    constructor(filePath: string) {
         this.filePath = filePath;
     }
 
-    async parse() {
+    async parse(): Promise<any> {
         try {
             const data = await fs.readFile(this.filePath);
             return this.extractMetadata(data);
         } catch (error) {
-            throw new Error(`Failed to parse PNG file: ${error.message}`);
+            throw new Error(`Failed to parse PNG file: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    extractMetadata(data) {
+    private extractMetadata(data: Buffer): any {
         if (!this.isPNG(data)) {
             throw new Error('Invalid PNG format');
         }
@@ -40,17 +43,17 @@ class PNGParser {
             };
         } catch (error) {
             console.error('Raw iTXt chunk data:', iTXtChunk.data.toString('utf-8'));
-            throw new Error(`Failed to parse metadata: ${error.message}`);
+            throw new Error(`Failed to parse metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    isPNG(data) {
+    private isPNG(data: Buffer): boolean {
         const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
         return data.slice(0, 8).equals(signature);
     }
 
-    parseChunks(data) {
-        const chunks = [];
+    private parseChunks(data: Buffer): PNGChunk[] {
+        const chunks: PNGChunk[] = [];
         let offset = 8;
 
         while (offset < data.length) {
@@ -73,30 +76,21 @@ class PNGParser {
         return chunks;
     }
 
-    parseITXtChunk(data) {
-        // Keyword + null byte +
-        // Compression flag (1 byte) +
-        // Compression method (1 byte) +
-        // Language tag + null byte +
-        // Translated keyword + null byte +
-        // Text
-
+    private parseITXtChunk(data: Buffer): string {
         let pos = 0;
 
         while (data[pos] !== 0) pos++;
-        pos++; // Skip null byte
+        pos++;
 
         pos += 2;
 
         while (data[pos] !== 0) pos++;
-        pos++; // Skip null byte
+        pos++;
 
         while (data[pos] !== 0) pos++;
-        pos++; // Skip null byte
+        pos++;
 
         const textData = data.slice(pos);
         return textData.toString('utf-8');
     }
 }
-
-module.exports = PNGParser;

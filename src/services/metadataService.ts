@@ -1,9 +1,19 @@
-const fs = require('fs').promises;
-const path = require('path');
-const PNGParser = require('../utils/pngParser');
+import { promises as fs } from 'fs';
+import path from 'path';
+import { PNGParser } from '../utils/pngParser';
+import { Config, MetadataResult, ProgressCallback } from '../types';
 
-class MetadataService {
-    constructor(config) {
+interface PNGFile {
+    fullPath: string;
+    relativePath: string;
+}
+
+export class MetadataService {
+    private imgDir: string;
+    private metadataDir: string;
+    public stopProcessing: boolean = false;
+
+    constructor(config: Config) {
         if (!config.imgDir || !config.metadataDir) {
             throw new Error('Required configuration missing');
         }
@@ -11,7 +21,7 @@ class MetadataService {
         this.metadataDir = config.metadataDir;
     }
 
-    updateConfig(config) {
+    updateConfig(config: Partial<Config>): void {
         if (config.imgDir) {
             this.imgDir = config.imgDir;
         }
@@ -20,25 +30,24 @@ class MetadataService {
         }
     }
 
-    async initialize() {
+    async initialize(): Promise<void> {
         try {
             await this.clearMetadataDirectory();
-
             await fs.mkdir(this.metadataDir, { recursive: true });
             console.log('Metadata directory initialized:', this.metadataDir);
         } catch (error) {
-            throw new Error(`Failed to initialize metadata directory: ${error.message}`);
+            throw new Error(`Failed to initialize metadata directory: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    async clearMetadataDirectory() {
+    async clearMetadataDirectory(): Promise<void> {
         try {
             const exists = await fs.access(this.metadataDir)
                 .then(() => true)
                 .catch(() => false);
 
             if (exists) {
-                const deleteRecursive = async (dirPath) => {
+                const deleteRecursive = async (dirPath: string): Promise<void> => {
                     const items = await fs.readdir(dirPath, { withFileTypes: true });
                     for (const item of items) {
                         const fullPath = path.join(dirPath, item.name);
@@ -60,9 +69,9 @@ class MetadataService {
         }
     }
 
-    async findPNGFiles(directory) {
+    async findPNGFiles(directory: string): Promise<PNGFile[]> {
         console.log('Scanning directory:', directory);
-        let pngFiles = [];
+        let pngFiles: PNGFile[] = [];
 
         try {
             const entries = await fs.readdir(directory, { withFileTypes: true });
@@ -91,7 +100,7 @@ class MetadataService {
         return pngFiles;
     }
 
-    async processImage(imagePath) {
+    async processImage(imagePath: string): Promise<{ originalPath: string; metadata: any }> {
         try {
             console.log('Processing image:', imagePath);
             const parser = new PNGParser(imagePath);
@@ -104,7 +113,6 @@ class MetadataService {
             const outputPath = path.join(outputDir, fileName);
 
             await fs.mkdir(path.dirname(outputPath), { recursive: true });
-
             await fs.writeFile(outputPath, JSON.stringify(metadata, null, 2), 'utf-8');
             console.log('Saved metadata to:', outputPath);
 
@@ -113,11 +121,11 @@ class MetadataService {
                 metadata
             };
         } catch (error) {
-            throw new Error(`Failed to process image ${path.basename(imagePath)}: ${error.message}`);
+            throw new Error(`Failed to process image ${path.basename(imagePath)}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
-    async processDirectory(progressCallback) {
+    async processDirectory(progressCallback: ProgressCallback): Promise<MetadataResult[]> {
         try {
             this.stopProcessing = false;
             console.log('Starting directory scan at:', this.imgDir);
@@ -130,7 +138,7 @@ class MetadataService {
                 total: totalFiles
             });
 
-            const results = [];
+            const results: MetadataResult[] = [];
             for (let i = 0; i < pngFiles.length; i++) {
                 if (this.stopProcessing) {
                     throw new Error('Generation stopped');
@@ -162,7 +170,7 @@ class MetadataService {
                     results.push({
                         file: file.relativePath,
                         success: false,
-                        error: error.message
+                        error: error instanceof Error ? error.message : 'Unknown error'
                     });
 
                     progressCallback({
@@ -184,5 +192,3 @@ class MetadataService {
         }
     }
 }
-
-module.exports = MetadataService;
