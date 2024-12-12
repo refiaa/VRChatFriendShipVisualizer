@@ -39,7 +39,25 @@
                 </button>
             </div>
         </div>
+
+        <div class="collapsible-container">
+            <button class="collapsible-button">Date Range Filter ▼</button>
+            <div class="collapsible-content">
+                <div class="date-slider-container">
+                    <div class="date-range-labels">
+                        <span id="startDate">Start Date</span>
+                        <span id="endDate">End Date</span>
+                    </div>
+                    <div class="double-range-slider">
+                        <div class="slider-track"></div>
+                        <input type="range" id="startDateSlider" min="0" max="100" value="0">
+                        <input type="range" id="endDateSlider" min="0" max="100" value="100">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <div id="graph">
         <div id="loadingOverlay" class="loading-overlay" style="display: none;">
             <div class="spinner"></div>

@@ -42,6 +42,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 versionElement.textContent = '';
             }
         });
+
+    const collapsible = document.querySelector('.collapsible-button');
+    const content = document.querySelector('.collapsible-content');
+
+    collapsible?.addEventListener('click', function() {
+        this.classList.toggle('active');
+        content.classList.toggle('active');
+
+        const arrow = this.textContent.includes('▼') ? '▲' : '▼';
+        this.textContent = `Date Range Filter ${arrow}`;
+    });
+
+    const startDateSlider = document.getElementById('startDateSlider');
+    const endDateSlider = document.getElementById('endDateSlider');
+    const startDateLabel = document.getElementById('startDate');
+    const endDateLabel = document.getElementById('endDate');
+
+    function calculateDate(value) {
+        const today = new Date();
+        const monthsAgo = Math.round((100 - value) / 100 * 12);
+        const date = new Date(today.getFullYear(), today.getMonth() - monthsAgo, 1);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+
+        return `${year}-${month}`;
+    }
+
+    function updateSliderTrack() {
+        const startVal = parseInt(startDateSlider.value);
+        const endVal = parseInt(endDateSlider.value);
+
+        document.querySelector('.slider-track').style.background =
+            `linear-gradient(to right, 
+               #ddd ${startVal}%, 
+               #4CAF50 ${startVal}%, 
+               #4CAF50 ${endVal}%, 
+               #ddd ${endVal}%
+           )`;
+
+        startDateLabel.textContent = calculateDate(startVal);
+        endDateLabel.textContent = calculateDate(endVal);
+
+        startDateLabel.classList.remove('active');
+        endDateLabel.classList.remove('active');
+        if (document.activeElement === startDateSlider) {
+            startDateLabel.classList.add('active');
+        } else if (document.activeElement === endDateSlider) {
+            endDateLabel.classList.add('active');
+        }
+    }
+
+    startDateSlider?.addEventListener('input', function(e) {
+        const startVal = parseInt(this.value);
+        const endVal = parseInt(endDateSlider.value);
+
+        if (startVal > endVal) {
+            this.value = endVal;
+            return;
+        }
+        updateSliderTrack();
+    });
+
+    endDateSlider?.addEventListener('input', function(e) {
+        const startVal = parseInt(startDateSlider.value);
+        const endVal = parseInt(this.value);
+
+        if (endVal < startVal) {
+            this.value = startVal;
+            return;
+        }
+        updateSliderTrack();
+    });
+
+    startDateSlider?.addEventListener('focus', updateSliderTrack);
+    endDateSlider?.addEventListener('focus', updateSliderTrack);
+    startDateSlider?.addEventListener('blur', updateSliderTrack);
+    endDateSlider?.addEventListener('blur', updateSliderTrack);
+
+    if (startDateSlider && endDateSlider) {
+        updateSliderTrack();
+    }
 });
 
 function showSearchResults(matches) {
