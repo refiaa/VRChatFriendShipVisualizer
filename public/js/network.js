@@ -124,6 +124,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (startDateSlider && endDateSlider) {
         updateSliderTrack();
     }
+
+    document.getElementById('applyDateFilter').addEventListener('click', function() {
+        if (currentNodes && currentLinks) {
+            generateMetadata();
+        }
+    });
 });
 
 function showSearchResults(matches) {
@@ -823,6 +829,8 @@ async function visualizeNetworkData() {
             nodeElements.attr('transform', d => `translate(${d.x},${d.y})`);
         });
 
+        document.getElementById('applyDateFilter').disabled = false;
+
     } catch (error) {
         console.error('Error visualizing network:', error);
         showPlaceholder('Error Occurred', 'Please check the debug information below');
@@ -849,6 +857,8 @@ async function visualizeNetworkData() {
 }
 
 function showPlaceholder(mainMessage, subMessage) {
+    document.getElementById('applyDateFilter').disabled = true;
+
     const width = document.getElementById('graph').clientWidth;
     const height = document.getElementById('graph').clientHeight;
 

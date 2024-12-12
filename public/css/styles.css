@@ -445,3 +445,13 @@ button:disabled {
     transform: scale(0.95) translateY(1px);
     filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
 }
+
+.date-filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.date-filter-actions button {
+    padding: 5px 15px;
+}
