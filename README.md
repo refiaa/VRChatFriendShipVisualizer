@@ -27,6 +27,7 @@ Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be 
 - [Setup](#setup)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
+- [Changelog](#Changelog)
 - [License](#license)
 
 ## Features
@@ -101,6 +102,9 @@ The project relies on the following major dependencies:
     ```
 - **Node.js & Express:** Backend server to handle API requests and serve the frontend.
   - **Note:** Ensure your `package.json` includes necessary scripts and dependencies for running the server.
+
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for a list of notable changes and updates.
 
 ## License
 
