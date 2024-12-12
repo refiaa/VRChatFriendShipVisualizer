@@ -140,5 +140,16 @@ export function createRouter(
         }
     });
 
+    router.get('/version', async (req: Request, res: Response): Promise<void> => {
+        try {
+            const versionPath = path.join(__dirname, '../../VERSION');
+            const version = await fs.readFile(versionPath, 'utf-8');
+            res.json({ version: version.trim() });
+        } catch (error) {
+            console.error('Error reading version:', error);
+            res.json({ version: '0.0.0' });
+        }
+    });
+
     return router;
 }

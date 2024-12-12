@@ -6,6 +6,22 @@ let zoom;
 let width;
 let height;
 
+fetch('/api/version')
+    .then(response => response.json())
+    .then(data => {
+        const versionElement = document.getElementById('version');
+        if (versionElement) {
+            versionElement.textContent = `v${data.version}`;
+        }
+    })
+    .catch(error => {
+        console.error('Failed to load version:', error);
+        const versionElement = document.getElementById('version');
+        if (versionElement) {
+            versionElement.textContent = '';
+        }
+    });
+
 document.getElementById('searchInput').addEventListener('input', function(e) {
     const searchText = e.target.value.toLowerCase();
     clearTimeout(searchTimeout);
