@@ -11,7 +11,7 @@ fetch('/api/version')
     .then(data => {
         const versionElement = document.getElementById('version');
         if (versionElement) {
-            versionElement.textContent = `v${data.version}`;
+            versionElement.textContent = `v ${data.version}`;
         }
     })
     .catch(error => {
