@@ -9,12 +9,13 @@ async function visualizeNetworkData(providedMetadata = null) {
             console.log(`Using provided metadata: ${allMetadata.length} files`);
         } else {
             console.log('Fetching metadata file list...');
-            const files = await fetch('/api/metadata/files').then(res => res.json());
+            const response = await fetch('/api/metadata/files');
+            const files = await response.json();
             console.log(`${files.length} metadata files found`);
 
-            if (files.length === 0) {
-                showPlaceholder('No Data Available', 'Please generate metadata first');
-                document.getElementById('progressStatus').textContent = 'No data available';
+            if (!files || files.length === 0) {
+                showPlaceholder('No Metadata Files', 'Please generate metadata first');
+                document.getElementById('applyDateFilter').disabled = true;
                 return;
             }
 
@@ -159,6 +160,7 @@ async function visualizeNetworkData(providedMetadata = null) {
         if (nodes.length === 0) {
             showPlaceholder('No Significant Connections', 'Try adjusting the time period or connection threshold');
             document.getElementById('progressStatus').textContent = 'No significant connections found';
+            document.getElementById('applyDateFilter').disabled = false;
             return;
         }
 
