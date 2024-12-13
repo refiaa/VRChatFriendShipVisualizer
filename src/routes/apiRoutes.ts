@@ -151,5 +151,86 @@ export function createRouter(
         }
     });
 
+    router.get('/metadata/date-range', async (req: Request, res: Response): Promise<void> => {
+        try {
+            const metadataDir = path.join(__dirname, '../../data/metadata');
+            const getAllFiles = async (dir: string): Promise<string[]> => {
+                const files = await fs.readdir(dir, { withFileTypes: true });
+                const paths = await Promise.all(files.map(async (file) => {
+                    const filePath = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        return getAllFiles(filePath);
+                    } else if (file.name.endsWith('.json')) {
+                        return file.name;
+                    }
+                    return null;
+                }));
+                return paths.flat().filter((path): path is string => path !== null);
+            };
+
+            const files = await getAllFiles(metadataDir);
+            if (files.length === 0) {
+                res.json({ start: null, end: null });
+                return;
+            }
+
+            const dates = files.map(filename => {
+                const match = filename.match(/VRChat_(\d{4}-\d{2})/);
+                return match ? match[1] : null;
+            }).filter((date): date is string => date !== null);
+
+            if (dates.length === 0) {
+                res.json({ start: null, end: null });
+                return;
+            }
+
+            dates.sort();
+            res.json({
+                start: dates[0],
+                end: dates[dates.length - 1]
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
+    router.post('/metadata/filter', async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { startDate, endDate } = req.body;
+            const metadataDir = path.join(__dirname, '../../data/metadata');
+
+            const getAllFiles = async (dir: string): Promise<string[]> => {
+                const files = await fs.readdir(dir, { withFileTypes: true });
+                const paths = await Promise.all(files.map(async (file) => {
+                    const filePath = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        return getAllFiles(filePath);
+                    } else if (file.name.endsWith('.json')) {
+                        return path.relative(metadataDir, filePath);
+                    }
+                    return null;
+                }));
+                return paths.flat().filter((path): path is string => path !== null);
+            };
+
+            const files = await getAllFiles(metadataDir);
+            const filteredFiles = files.filter(filename => {
+                const match = filename.match(/VRChat_(\d{4}-\d{2})/);
+                if (!match) return false;
+
+                const fileDate = match[1];
+                return fileDate >= startDate && fileDate <= endDate;
+            });
+
+            res.json(filteredFiles);
+        } catch (error) {
+            res.status(500).json({
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
     return router;
 }

@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         content.classList.toggle('active');
 
         const arrow = this.textContent.includes('▼') ? '▲' : '▼';
-        this.textContent = `Date Range Filter ${arrow}`;
+        this.textContent = `Data Filter ${arrow}`;
     });
 
     const startDateSlider = document.getElementById('startDateSlider');
@@ -59,9 +59,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const endDateLabel = document.getElementById('endDate');
 
     function calculateDate(value) {
-        const today = new Date();
-        const monthsAgo = Math.round((100 - value) / 100 * 12);
-        const date = new Date(today.getFullYear(), today.getMonth() - monthsAgo, 1);
+        if (!window.dateRange) {
+            return 'No Data';
+        }
+
+        const { start, totalMonths } = window.dateRange;
+        const monthsToAdd = Math.round((value / totalMonths) * totalMonths);
+
+        const date = new Date(start);
+        date.setMonth(start.getMonth() + monthsToAdd);
 
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -72,14 +78,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSliderTrack() {
         const startVal = parseInt(startDateSlider.value);
         const endVal = parseInt(endDateSlider.value);
+        const max = parseInt(endDateSlider.max);
+
+        const startPercent = (startVal / max) * 100;
+        const endPercent = (endVal / max) * 100;
 
         document.querySelector('.slider-track').style.background =
             `linear-gradient(to right, 
-               #ddd ${startVal}%, 
-               #4CAF50 ${startVal}%, 
-               #4CAF50 ${endVal}%, 
-               #ddd ${endVal}%
-           )`;
+            #ddd 0%, 
+            #ddd ${startPercent}%, 
+            #4CAF50 ${startPercent}%, 
+            #4CAF50 ${endPercent}%, 
+            #ddd ${endPercent}%, 
+            #ddd 100%
+        )`;
 
         startDateLabel.textContent = calculateDate(startVal);
         endDateLabel.textContent = calculateDate(endVal);
@@ -95,23 +107,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     startDateSlider?.addEventListener('input', function(e) {
         const startVal = parseInt(this.value);
-        const endVal = parseInt(endDateSlider.value);
+        const maxLimit = parseInt(endDateSlider.max) - 1;
 
-        if (startVal > endVal) {
-            this.value = endVal;
+        if (startVal > maxLimit) {
+            this.value = maxLimit;
             return;
         }
+
+        const endVal = parseInt(endDateSlider.value);
+        if (startVal >= endVal) {
+            endDateSlider.value = Math.min(maxLimit + 1, startVal + 1);
+        }
+
         updateSliderTrack();
     });
 
     endDateSlider?.addEventListener('input', function(e) {
-        const startVal = parseInt(startDateSlider.value);
         const endVal = parseInt(this.value);
+        const minLimit = 1;
 
-        if (endVal < startVal) {
-            this.value = startVal;
+        if (endVal < minLimit) {
+            this.value = minLimit;
             return;
         }
+
+        const startVal = parseInt(startDateSlider.value);
+        if (endVal <= startVal) {
+            startDateSlider.value = Math.max(0, endVal - 1);
+        }
+
         updateSliderTrack();
     });
 
@@ -124,9 +148,63 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSliderTrack();
     }
 
-    document.getElementById('applyDateFilter').addEventListener('click', function() {
-        if (currentNodes && currentLinks) {
-            generateMetadata();
+    document.getElementById('applyDateFilter')?.addEventListener('click', async function() {
+        if (!currentNodes || !currentLinks) return;
+
+        const startDate = document.getElementById('startDate').textContent;
+        const endDate = document.getElementById('endDate').textContent;
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const progressStatus = document.getElementById('progressStatus');
+
+        try {
+            loadingOverlay.style.display = 'flex';
+            progressStatus.textContent = 'Filtering data...';
+
+            const response = await fetch('/api/metadata/filter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    startDate: startDate,
+                    endDate: endDate
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to filter metadata');
+            }
+
+            const filteredFiles = await response.json();
+            progressStatus.textContent = 'Loading filtered data...';
+
+            const allMetadata = [];
+            for (const file of filteredFiles) {
+                try {
+                    const res = await fetch(`/api/metadata/file/${file}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        allMetadata.push(data);
+                    }
+                } catch (error) {
+                    console.error(`Error loading filtered metadata: ${file}`, error);
+                }
+            }
+
+            if (allMetadata.length > 0) {
+                progressStatus.textContent = 'Updating visualization...';
+                d3.select('#graph svg').remove();
+                await visualizeNetworkData(allMetadata);
+            } else {
+                showPlaceholder('No Data Available', 'No data found in selected date range');
+            }
+
+        } catch (error) {
+            console.error('Error applying date filter:', error);
+            progressStatus.textContent = 'Error filtering data';
+        } finally {
+            loadingOverlay.style.display = 'none';
+            progressStatus.textContent = '';
         }
     });
 });
@@ -177,11 +255,13 @@ async function generateMetadata() {
                         progressStatus.textContent = 'Processing network data...';
                         await visualizeNetworkData();
 
+                        await updateDateRange();
+
                         resultDiv.innerHTML = `
-                            <h3>Processing Results</h3>
-                            <div class="success">Completed: ${data.successful} / ${data.total}</div>
-                            ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
-                        `;
+            <h3>Processing Results</h3>
+            <div class="success">Completed: ${data.successful} / ${data.total}</div>
+            ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
+        `;
                     }
                     updateButton.disabled = false;
                     stopButton.disabled = true;
@@ -207,6 +287,7 @@ async function generateMetadata() {
         updateButton.disabled = false;
         stopButton.disabled = true;
     }
+    await updateDateRange();
 }
 
 function closeEventSource() {
@@ -228,5 +309,58 @@ async function stopGeneration() {
         }
     } catch (error) {
         console.error('Error stopping generation:', error);
+    }
+}
+
+async function updateDateRange() {
+    try {
+        const response = await fetch('/api/metadata/date-range');
+        const data = await response.json();
+
+        const startDateLabel = document.getElementById('startDate');
+        const endDateLabel = document.getElementById('endDate');
+        const applyDateFilter = document.getElementById('applyDateFilter');
+        const startDateSlider = document.getElementById('startDateSlider');
+        const endDateSlider = document.getElementById('endDateSlider');
+
+        if (data.start && data.end) {
+            // Parse dates
+            const startDate = new Date(data.start + '-01');
+            const endDate = new Date(data.end + '-01');
+
+            // Calculate total months between dates
+            const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12
+                + (endDate.getMonth() - startDate.getMonth());
+
+            // Update slider attributes
+            startDateSlider.min = 0;
+            startDateSlider.max = totalMonths;
+            startDateSlider.value = 0;
+
+            endDateSlider.min = 0;
+            endDateSlider.max = totalMonths;
+            endDateSlider.value = totalMonths;
+
+            // Update labels
+            startDateLabel.textContent = data.start;
+            endDateLabel.textContent = data.end;
+            applyDateFilter.disabled = false;
+
+            // Store the date range for slider calculations
+            window.dateRange = {
+                start: startDate,
+                end: endDate,
+                totalMonths: totalMonths
+            };
+
+            // Update the slider track
+            updateSliderTrack();
+        } else {
+            startDateLabel.textContent = 'No Data';
+            endDateLabel.textContent = 'No Data';
+            applyDateFilter.disabled = true;
+        }
+    } catch (error) {
+        console.error('Error fetching date range:', error);
     }
 }

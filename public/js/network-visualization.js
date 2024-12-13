@@ -1,43 +1,50 @@
-async function visualizeNetworkData() {
+async function visualizeNetworkData(providedMetadata = null) {
     try {
         d3.select('#graph svg').remove();
 
-        console.log('Fetching metadata file list...');
-        const files = await fetch('/api/metadata/files').then(res => res.json());
-        console.log(`${files.length} metadata files found`);
+        let allMetadata;
 
-        if (files.length === 0) {
-            showPlaceholder('No Data Available', 'Please generate metadata first');
-            document.getElementById('progressStatus').textContent = 'No data available';
-            return;
-        }
+        if (providedMetadata) {
+            allMetadata = providedMetadata;
+            console.log(`Using provided metadata: ${allMetadata.length} files`);
+        } else {
+            console.log('Fetching metadata file list...');
+            const files = await fetch('/api/metadata/files').then(res => res.json());
+            console.log(`${files.length} metadata files found`);
 
-        const allMetadata = [];
-        const concurrencyLimit = 5;
-        let index = 0;
+            if (files.length === 0) {
+                showPlaceholder('No Data Available', 'Please generate metadata first');
+                document.getElementById('progressStatus').textContent = 'No data available';
+                return;
+            }
 
-        async function fetchFile() {
-            while (index < files.length) {
-                const file = files[index++];
-                try {
-                    const res = await fetch(`/api/metadata/file/${file}`);
-                    if (!res.ok) {
-                        throw new Error(`Failed to fetch file: ${file}`);
+            allMetadata = [];
+            const concurrencyLimit = 5;
+            let index = 0;
+
+            async function fetchFile() {
+                while (index < files.length) {
+                    const file = files[index++];
+                    try {
+                        const res = await fetch(`/api/metadata/file/${file}`);
+                        if (!res.ok) {
+                            throw new Error(`Failed to fetch file: ${file}`);
+                        }
+                        const data = await res.json();
+                        allMetadata.push(data);
+                    } catch (error) {
+                        console.error(`Error fetching file ${file}:`, error);
                     }
-                    const data = await res.json();
-                    allMetadata.push(data);
-                } catch (error) {
-                    console.error(`Error fetching file ${file}:`, error);
                 }
             }
-        }
 
-        const workers = [];
-        for (let i = 0; i < concurrencyLimit; i++) {
-            workers.push(fetchFile());
-        }
+            const workers = [];
+            for (let i = 0; i < concurrencyLimit; i++) {
+                workers.push(fetchFile());
+            }
 
-        await Promise.all(workers);
+            await Promise.all(workers);
+        }
 
         if (allMetadata.length === 0) {
             showPlaceholder('No Valid Data Found', 'Please check your metadata files');
@@ -332,6 +339,30 @@ async function visualizeNetworkData() {
         });
 
         document.getElementById('applyDateFilter').disabled = false;
+
+        try {
+            const response = await fetch('/api/metadata/date-range');
+            if (!response.ok) throw new Error('Failed to fetch date range');
+
+            const { start, end } = await response.json();
+            if (start && end) {
+                document.getElementById('startDate').textContent = start;
+                document.getElementById('endDate').textContent = end;
+                document.getElementById('startDateSlider').disabled = false;
+                document.getElementById('endDateSlider').disabled = false;
+            } else {
+                document.getElementById('startDate').textContent = 'No Data';
+                document.getElementById('endDate').textContent = 'No Data';
+                document.getElementById('startDateSlider').disabled = true;
+                document.getElementById('endDateSlider').disabled = true;
+            }
+        } catch (error) {
+            console.error('Error fetching date range:', error);
+            document.getElementById('startDate').textContent = 'Error';
+            document.getElementById('endDate').textContent = 'Error';
+            document.getElementById('startDateSlider').disabled = true;
+            document.getElementById('endDateSlider').disabled = true;
+        }
 
     } catch (error) {
         console.error('Error visualizing network:', error);
