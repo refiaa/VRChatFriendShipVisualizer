@@ -27,3 +27,13 @@
 
 ### Bugfixes
 - Corrected event listener timing for search functionality
+
+## 0.0.3 - 2024-12-13
+### New features
+- Added date range selection using a slider interface
+
+### Changes
+- Improved structure of ./public/js directory
+
+### Bugfixes
+- Modified backend API to enable filter application even when metadata files exist without internal data

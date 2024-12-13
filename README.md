@@ -32,13 +32,13 @@ Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be 
 
 ## Features
 
+![features](./image/features.png)
+
 - **Interactive Network Graph:** Visualize connections between VRChat players with dynamic force-directed graphs.
 - **Search Functionality:** Easily search for players by name and highlight their connections.
-- **Player Name Masking:** Toggle to mask player names for privacy.
 - **Responsive Design:** Accessible and functional across various screen sizes.
-- **Error Handling:** Graceful handling of errors with detailed debug information.
 - **Share and Download** You can download image by SVG or share to the twitter via `tmpfiles`
-
+- **Date Range-based Data Filter** You can filter your pictures by date range using a slider bar.
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:

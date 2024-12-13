@@ -151,5 +151,137 @@ export function createRouter(
         }
     });
 
+    router.get('/metadata/date-range', async (req: Request, res: Response): Promise<void> => {
+        try {
+            const metadataDir = path.join(__dirname, '../../data/metadata');
+
+            // metadata directoryの存在有無確認
+            const metadataExists = await fs.access(metadataDir)
+                .then(() => true)
+                .catch(() => false);
+
+            if (!metadataExists) {
+                res.json({
+                    exists: false,
+                    start: null,
+                    end: null
+                });
+                return;
+            }
+
+            const getAllFiles = async (dir: string): Promise<string[]> => {
+                const files = await fs.readdir(dir, { withFileTypes: true });
+                const paths = await Promise.all(files.map(async (file) => {
+                    const filePath = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        return getAllFiles(filePath);
+                    } else if (file.name.endsWith('.json')) {
+                        return file.name;
+                    }
+                    return null;
+                }));
+                return paths.flat().filter((path): path is string => path !== null);
+            };
+
+            const files = await getAllFiles(metadataDir);
+            if (files.length === 0) {
+                res.json({
+                    exists: true,
+                    hasFiles: false,
+                    start: null,
+                    end: null
+                });
+                return;
+            }
+
+            const dates = files
+                .map(filename => {
+                    const patterns = [
+                        /VRChat_(\d{4}-\d{2})-\d{2}/,
+                        /VRChat_\d+x\d+_(\d{4}-\d{2})-\d{2}/ // for old(outdated) VRChat Sreenshot style
+                    ];
+
+                    for (const pattern of patterns) {
+                        const match = filename.match(pattern);
+                        if (match) {
+                            return match[1];
+                        }
+                    }
+                    return null;
+                })
+                .filter((date): date is string => date !== null);
+
+            if (dates.length === 0) {
+                res.json({
+                    exists: true,
+                    hasFiles: true,
+                    hasValidDates: false,
+                    start: null,
+                    end: null
+                });
+                return;
+            }
+
+            dates.sort();
+            res.json({
+                exists: true,
+                hasFiles: true,
+                hasValidDates: true,
+                start: dates[0],
+                end: dates[dates.length - 1]
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                exists: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
+    router.post('/metadata/filter', async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { startDate, endDate } = req.body;
+            const metadataDir = path.join(__dirname, '../../data/metadata');
+
+            const getAllFiles = async (dir: string): Promise<string[]> => {
+                const files = await fs.readdir(dir, { withFileTypes: true });
+                const paths = await Promise.all(files.map(async (file) => {
+                    const filePath = path.join(dir, file.name);
+                    if (file.isDirectory()) {
+                        return getAllFiles(filePath);
+                    } else if (file.name.endsWith('.json')) {
+                        return path.relative(metadataDir, filePath);
+                    }
+                    return null;
+                }));
+                return paths.flat().filter((path): path is string => path !== null);
+            };
+
+            const files = await getAllFiles(metadataDir);
+            const filteredFiles = files.filter(filename => {
+                const patterns = [
+                    /VRChat_(\d{4}-\d{2})-\d{2}/,
+                    /VRChat_\d+x\d+_(\d{4}-\d{2})-\d{2}/ // for old(outdated) VRChat Sreenshot style
+                ];
+
+                for (const pattern of patterns) {
+                    const match = filename.match(pattern);
+                    if (match && match[1]) {
+                        const fileDate = match[1];
+                        return fileDate >= startDate && fileDate <= endDate;
+                    }
+                }
+                return false;
+            });
+
+            res.json(filteredFiles);
+        } catch (error) {
+            res.status(500).json({
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
     return router;
 }
