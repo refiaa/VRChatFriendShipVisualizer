@@ -174,6 +174,17 @@ async function generateMetadata() {
         progressStatus.textContent = 'Initializing...';
         debugDiv.innerHTML = '';
 
+        const startDateSlider = document.getElementById('startDateSlider');
+        const endDateSlider = document.getElementById('endDateSlider');
+        const startDateLabel = document.getElementById('startDate');
+        const endDateLabel = document.getElementById('endDate');
+
+        if (startDateSlider && endDateSlider) {
+            startDateSlider.value = '0';
+            endDateSlider.value = endDateSlider.max || '100';
+            updateSliderTrack();
+        }
+
         currentEventSource = new EventSource('/api/metadata/generate');
 
         currentEventSource.onmessage = async function(event) {
@@ -203,15 +214,16 @@ async function generateMetadata() {
                         currentLinks = null;
                     } else {
                         progressStatus.textContent = 'Processing network data...';
+
+                        // sliderの状態からアップデート
+                        await updateDateRange();
                         await visualizeNetworkData();
 
-                        await updateDateRange();
-
                         resultDiv.innerHTML = `
-            <h3>Processing Results</h3>
-            <div class="success">Completed: ${data.successful} / ${data.total}</div>
-            ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
-        `;
+                            <h3>Processing Results</h3>
+                            <div class="success">Completed: ${data.successful} / ${data.total}</div>
+                            ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
+                        `;
                     }
                     updateButton.disabled = false;
                     stopButton.disabled = true;
