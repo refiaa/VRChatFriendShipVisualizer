@@ -352,6 +352,7 @@ async function visualizeNetworkData(providedMetadata = null) {
                 document.getElementById('endDate').textContent = end;
                 document.getElementById('startDateSlider').disabled = false;
                 document.getElementById('endDateSlider').disabled = false;
+
             } else {
                 document.getElementById('startDate').textContent = 'No Data';
                 document.getElementById('endDate').textContent = 'No Data';

@@ -15,15 +15,11 @@
 - Migrated JavaScript backend to TypeScript
 - Implemented Express.js based RESTful API
 
-### Bugfixes
-
 ## 0.0.2 - 2024-12-13
 ### New features
 - Added placeholder text for initial page load and no data scenarios
 - Improved user guidance with welcome message when first loading the page
 - Enhanced empty state handling throughout the visualization process
-
-### Changes
 
 ### Bugfixes
 - Corrected event listener timing for search functionality
@@ -37,3 +33,8 @@
 
 ### Bugfixes
 - Modified backend API to enable filter application even when metadata files exist without internal data
+
+## 0.0.3.1 - 2024-12-13
+### Bugfixes
+- Fixed an issue where slider values would reset after applying date filter
+- Fixed an issue where sliders were still movable when start and end months were the same

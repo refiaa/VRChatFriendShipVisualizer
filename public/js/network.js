@@ -59,6 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const endDateLabel = document.getElementById('endDate');
 
     startDateSlider?.addEventListener('input', function(e) {
+        if (window.dateRange && window.dateRange.totalMonths === 0) {
+            this.value = 0;
+            return;
+        }
+
         const startVal = parseInt(this.value);
         const maxLimit = parseInt(endDateSlider.max) - 1;
 
@@ -73,9 +78,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         updateSliderTrack();
+        updateSliderState();
     });
 
     endDateSlider?.addEventListener('input', function(e) {
+        if (window.dateRange && window.dateRange.totalMonths === 0) {
+            this.value = 0;
+            return;
+        }
+
         const endVal = parseInt(this.value);
         const minLimit = 1;
 
@@ -90,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         updateSliderTrack();
+        updateSliderState();
     });
 
     startDateSlider?.addEventListener('focus', updateSliderTrack);
@@ -106,6 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const endDate = document.getElementById('endDate').textContent;
         const loadingOverlay = document.getElementById('loadingOverlay');
         const progressStatus = document.getElementById('progressStatus');
+
+        const startSliderValue = document.getElementById('startDateSlider').value;
+        const endSliderValue = document.getElementById('endDateSlider').value;
 
         try {
             loadingOverlay.style.display = 'flex';
@@ -145,6 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
             progressStatus.textContent = 'Updating visualization...';
             d3.select('#graph svg').remove();
             await visualizeNetworkData(allMetadata);
+
+            document.getElementById('startDateSlider').value = startSliderValue;
+            document.getElementById('endDateSlider').value = endSliderValue;
+            updateSliderTrack();
 
             document.getElementById('applyDateFilter').disabled = false;
 
@@ -353,6 +372,7 @@ async function updateDateRange() {
 
             // Update the slider track
             updateSliderTrack();
+            updateSliderState();
         }
     } catch (error) {
         console.error('Error fetching date range:', error);
@@ -377,7 +397,14 @@ function calculateDate(value) {
         return 'No Data';
     }
 
-    const { start, totalMonths } = window.dateRange;
+    const { start, end, totalMonths } = window.dateRange;
+
+    if (totalMonths === 0) {
+        const year = start.getFullYear();
+        const month = String(start.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    }
+
     const monthsToAdd = Math.round((value / totalMonths) * totalMonths);
 
     const date = new Date(start);
@@ -428,5 +455,30 @@ function updateSliderTrack() {
         } else if (document.activeElement === endDateSlider) {
             endDateLabel.classList.add('active');
         }
+    }
+}
+
+function areDatesEqual() {
+    const startDateLabel = document.getElementById('startDate');
+    const endDateLabel = document.getElementById('endDate');
+    return startDateLabel.textContent === endDateLabel.textContent;
+}
+
+function updateSliderState() {
+    const isEqual = areDatesEqual();
+    const startDateSlider = document.getElementById('startDateSlider');
+    const endDateSlider = document.getElementById('endDateSlider');
+
+    if (!startDateSlider || !endDateSlider) return;
+
+    startDateSlider.disabled = isEqual;
+    endDateSlider.disabled = isEqual;
+
+    if (isEqual) {
+        startDateSlider.style.opacity = '0.5';
+        endDateSlider.style.opacity = '0.5';
+    } else {
+        startDateSlider.style.opacity = '1';
+        endDateSlider.style.opacity = '1';
     }
 }
