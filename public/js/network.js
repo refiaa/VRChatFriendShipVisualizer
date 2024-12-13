@@ -107,6 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const loadingOverlay = document.getElementById('loadingOverlay');
         const progressStatus = document.getElementById('progressStatus');
 
+        const startSliderValue = document.getElementById('startDateSlider').value;
+        const endSliderValue = document.getElementById('endDateSlider').value;
+
         try {
             loadingOverlay.style.display = 'flex';
             progressStatus.textContent = 'Filtering data...';
@@ -145,6 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
             progressStatus.textContent = 'Updating visualization...';
             d3.select('#graph svg').remove();
             await visualizeNetworkData(allMetadata);
+
+            document.getElementById('startDateSlider').value = startSliderValue;
+            document.getElementById('endDateSlider').value = endSliderValue;
+            updateSliderTrack();
 
             document.getElementById('applyDateFilter').disabled = false;
 
