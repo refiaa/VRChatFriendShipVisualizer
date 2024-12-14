@@ -1,14 +1,23 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "esnext",
+    "module": "commonjs",
     "lib": [
       "es2020",
       "dom",
       "dom.iterable",
       "esnext",
-      "webworker"
+      "es2021.string"
     ],
+
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
 
     "strict": true,
     "noImplicitAny": true,
@@ -26,30 +35,20 @@
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": true,
 
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
     "outDir": "./dist",
     "rootDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-
     "allowJs": true,
     "checkJs": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
     "types": [
       "node",
@@ -66,13 +65,15 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.js",
-    "src/**/*.jsx"
+    "src/**/*.jsx",
+    "src/**/*.json"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "build",
-    "coverage"
+    "coverage",
+    "**/*.spec.ts"
   ],
   "ts-node": {
     "files": true,
