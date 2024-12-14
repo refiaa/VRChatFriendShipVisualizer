@@ -66,7 +66,12 @@
     "src/**/*.tsx",
     "src/**/*.js",
     "src/**/*.jsx",
-    "src/**/*.json"
+    "src/**/*.json",
+    "img/**/*",
+    "data/**/*",
+    "public/**/*",
+    "*.json",
+    "VERSION"
   ],
   "exclude": [
     "node_modules",
