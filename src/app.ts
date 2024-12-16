@@ -3,11 +3,11 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import { ImageController } from "./controllers/imageController";
 import { MetadataController } from "./controllers/metadataController";
 import { createRouter } from "./routes/apiRoutes";
+import { FileStorageService } from "./services/fileStorageService";
 import { ImageService } from "./services/imageService";
 import { MetadataService } from "./services/metadataService";
-import { FileStorageService } from "./services/fileStorageService";
-import { errorHandler } from "./utils/errorHandler";
 import type { Config } from "./types";
+import { errorHandler } from "./utils/errorHandler";
 
 const app: Express = express();
 const PORT: number = Number.parseInt(process.env.PORT || "3000", 10);

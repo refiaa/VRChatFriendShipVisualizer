@@ -1,21 +1,21 @@
 import { promises as fs } from "fs";
-import { type Request, type Response, Router, NextFunction } from "express";
+import { type NextFunction, type Request, type Response, Router } from "express";
 import type { ImageController } from "../controllers/imageController";
 import type { MetadataController } from "../controllers/metadataController";
+import { ConfigDirectoryEndpoint } from "../endpoints/configDirectoryEndpoint";
 import { ImageUploadEndpoint } from "../endpoints/imageUploadEndpoint";
+import { MetadataDateRangeEndpoint } from "../endpoints/metadataDateRangeEndpoint";
+import { MetadataFileEndpoint } from "../endpoints/metadataFileEndpoint";
+import { MetadataFilesEndpoint } from "../endpoints/metadataFilesEndpoint";
+import { MetadataFilterEndpoint } from "../endpoints/metadataFilterEndpoint";
 import { MetadataGenerationEndpoint } from "../endpoints/metadataGenerationEndpoint";
 import { MetadataStopEndpoint } from "../endpoints/metadataStopEndpoint";
-import { ConfigDirectoryEndpoint } from "../endpoints/configDirectoryEndpoint";
-import { MetadataFilesEndpoint } from "../endpoints/metadataFilesEndpoint";
-import { MetadataFileEndpoint } from "../endpoints/metadataFileEndpoint";
-import { MetadataDateRangeEndpoint } from "../endpoints/metadataDateRangeEndpoint";
-import { MetadataFilterEndpoint } from "../endpoints/metadataFilterEndpoint";
 import type { FileStorageService } from "../services/fileStorageService";
 
 export function createRouter(
-    metadataController: MetadataController,
-    imageController: ImageController,
-    fileStorageService: FileStorageService,
+  metadataController: MetadataController,
+  imageController: ImageController,
+  fileStorageService: FileStorageService,
 ): Router {
   const router: Router = Router();
 
@@ -29,22 +29,22 @@ export function createRouter(
   const metadataFilterEndpoint = new MetadataFilterEndpoint(fileStorageService);
 
   router.get("/metadata/generate", (req: Request, res: Response, next: NextFunction) =>
-      metadataGenerationEndpoint.handle(res).catch(next),
+    metadataGenerationEndpoint.handle(res).catch(next),
   );
   router.post("/config/directory", (req: Request, res: Response, next: NextFunction) =>
-      configDirectoryEndpoint.handle(req, res).catch(next),
+    configDirectoryEndpoint.handle(req, res).catch(next),
   );
   router.get("/metadata/files", (req: Request, res: Response, next: NextFunction) =>
-      metadataFilesEndpoint.handle(req, res).catch(next),
+    metadataFilesEndpoint.handle(req, res).catch(next),
   );
   router.get("/metadata/file/:filename(*)", (req: Request, res: Response, next: NextFunction) =>
-      metadataFileEndpoint.handle(req, res).catch(next),
+    metadataFileEndpoint.handle(req, res).catch(next),
   );
   router.post("/metadata/stop", (req: Request, res: Response, next: NextFunction) =>
-      metadataStopEndpoint.handle(req, res).catch(next),
+    metadataStopEndpoint.handle(req, res).catch(next),
   );
   router.post("/upload/image", (req: Request, res: Response, next: NextFunction) =>
-      imageUploadEndpoint.handle(req, res).catch(next),
+    imageUploadEndpoint.handle(req, res).catch(next),
   );
   router.get("/version", async (req: Request, res: Response) => {
     try {
@@ -57,10 +57,10 @@ export function createRouter(
     }
   });
   router.get("/metadata/date-range", (req: Request, res: Response, next: NextFunction) =>
-      metadataDateRangeEndpoint.handle(req, res).catch(next),
+    metadataDateRangeEndpoint.handle(req, res).catch(next),
   );
   router.post("/metadata/filter", (req: Request, res: Response, next: NextFunction) =>
-      metadataFilterEndpoint.handle(req, res).catch(next),
+    metadataFilterEndpoint.handle(req, res).catch(next),
   );
 
   return router;
