@@ -1,5 +1,5 @@
 import { promises as fs } from "fs";
-import path from 'path';
+import path from "path";
 import { type NextFunction, type Request, type Response, Router } from "express";
 import type { ImageController } from "../controllers/imageController";
 import type { MetadataController } from "../controllers/metadataController";
