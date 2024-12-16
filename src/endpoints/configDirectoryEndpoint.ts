@@ -13,7 +13,8 @@ export class ConfigDirectoryEndpoint {
 
             const stats = await fs.stat(absolutePath);
             if (!stats.isDirectory()) {
-                return res.status(400).json({ success: false, error: "Not a directory" });
+                res.status(400).json({ success: false, error: "Not a directory" });
+                return;
             }
 
             await fs.access(absolutePath, fs.constants.R_OK);
