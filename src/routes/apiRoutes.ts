@@ -1,4 +1,5 @@
 import { promises as fs } from "fs";
+import path from 'path';
 import { type NextFunction, type Request, type Response, Router } from "express";
 import type { ImageController } from "../controllers/imageController";
 import type { MetadataController } from "../controllers/metadataController";
@@ -49,7 +50,7 @@ export function createRouter(
   router.get("/version", async (req: Request, res: Response) => {
     try {
       const versionPath = path.join(__dirname, "../../VERSION");
-      const version = await fs.promises.readFile(versionPath, "utf-8");
+      const version = await fs.readFile(versionPath, "utf-8");
       res.json({ version: version.trim() });
     } catch (error) {
       console.error("Error reading version:", error);
