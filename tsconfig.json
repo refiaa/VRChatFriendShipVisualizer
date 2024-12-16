@@ -9,7 +9,6 @@
       "esnext",
       "es2021.string"
     ],
-
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
@@ -18,7 +17,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-
     "strict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -27,29 +25,24 @@
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
-
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": true,
-
     "outDir": "./dist",
     "rootDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-
     "allowJs": true,
     "checkJs": true,
-
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-
     "types": [
       "node",
       "express",
