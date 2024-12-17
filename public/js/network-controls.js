@@ -1,5 +1,3 @@
-let searchTimeout;
-
 function showSearchResults(matches) {
     const resultsDiv = document.getElementById('searchResults');
 
@@ -52,18 +50,6 @@ function highlightNode(nodeId) {
                 .translate(dx, dy)
                 .scale(transform.k)
         );
-}
-
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchResults').style.display = 'none';
-
-    d3.selectAll('.node')
-        .classed('highlighted-node', false)
-        .classed('dimmed', false);
-
-    d3.selectAll('.link')
-        .classed('dimmed', false);
 }
 
 async function updateDirectory() {
