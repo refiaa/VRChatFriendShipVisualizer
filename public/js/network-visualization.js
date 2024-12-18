@@ -61,6 +61,18 @@ async function visualizeNetworkData(providedMetadata = null) {
         const playerAppearances = new Map();
         const relationshipStrength = new Map();
 
+        /**
+         * Time-based weight calculation function
+         *
+         * Calculation criteria:
+         * 1. monthsDiff: Calculates the time difference in months between current time and data timestamp
+         * 2. Base decay rate: exp(-monthsDiff/36)
+         *    - Uses 36 months (3 years) as the base for gradual decay
+         *    - Maintains about 37% weight even after 3 years
+         * 3. Minimum weight: 0.3
+         *    - Ensures even the oldest data maintains 30% influence
+         */
+
         const getTimeWeight = (timestamp) => {
             const now = new Date().getTime();
             const monthsDiff = (now - timestamp) / (1000 * 60 * 60 * 24 * 30);
@@ -152,6 +164,19 @@ async function visualizeNetworkData(providedMetadata = null) {
                     strength: relationshipStrength.get(key)
                 };
             });
+
+        /**
+         * Filter function for suspected circular reference nodes
+         *
+         * Filtering criteria:
+         * Nodes are preserved if:
+         *    - Has fewer than 10 relationship strength values
+         *    - Connected to the node with highest appearances
+         *    - Top 10 strength values are not all identical
+         * Nodes are filtered out if:
+         *    - Has 10 or more identical strength values AND
+         *    - Not connected to the node with highest appearances
+         */
 
         function filterCircularNodes(nodes, links) {
             const maxAppearanceNode = nodes.reduce((max, node) =>
