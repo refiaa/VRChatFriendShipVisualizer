@@ -43,6 +43,7 @@
 ### Changes
 - Enhanced node filtering logic to better handle circular references
 - Modified network visualization Logic for better performance
+- Frontend Structure Refactored
 
 ### Bugfixes
 - Fixed search functionality after recent refactoring
