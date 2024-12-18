@@ -64,7 +64,8 @@ async function visualizeNetworkData(providedMetadata = null) {
         const getTimeWeight = (timestamp) => {
             const now = new Date().getTime();
             const monthsDiff = (now - timestamp) / (1000 * 60 * 60 * 24 * 30);
-            return Math.exp(-monthsDiff / 12);
+            const baseWeight = Math.exp(-monthsDiff / 36);
+            return Math.max(0.3, baseWeight);
         };
 
         allMetadata.forEach(metadata => {
@@ -153,21 +154,38 @@ async function visualizeNetworkData(providedMetadata = null) {
             });
 
         function filterCircularNodes(nodes, links) {
+            const maxAppearanceNode = nodes.reduce((max, node) =>
+                    node.count > max.count ? node : max
+                , nodes[0]);
+
             const nodeStrengths = new Map();
 
             nodes.forEach(node => {
-                const strengths = links
-                    .filter(l => l.source === node.id || l.target === node.id)
+                const connectedLinks = links.filter(l =>
+                    l.source === node.id || l.target === node.id
+                );
+
+                const hasMaxNodeConnection = connectedLinks.some(l =>
+                    l.source === maxAppearanceNode.id || l.target === maxAppearanceNode.id
+                );
+
+                const strengths = connectedLinks
                     .map(l => l.strength)
                     .sort((a, b) => b - a)
                     .slice(0, 10);
 
-                nodeStrengths.set(node.id, strengths);
+                nodeStrengths.set(node.id, {
+                    strengths: strengths,
+                    hasMaxNodeConnection: hasMaxNodeConnection
+                });
             });
 
             return nodes.filter(node => {
-                const strengths = nodeStrengths.get(node.id);
+                const nodeInfo = nodeStrengths.get(node.id);
+                const strengths = nodeInfo.strengths;
+
                 if (strengths.length < 10) return true;
+                if (nodeInfo.hasMaxNodeConnection) return true;
 
                 const firstStrength = strengths[0];
                 return !strengths.slice(0, 10).every(s =>
