@@ -38,3 +38,11 @@
 ### Bugfixes
 - Fixed an issue where slider values would reset after applying date filter
 - Fixed an issue where sliders were still movable when start and end months were the same
+
+## 0.0.3.2 - 2024-12-18
+### Changes
+- Enhanced node filtering logic to better handle circular references
+- Modified network visualization Logic for better performance
+
+### Bugfixes
+- Fixed search functionality after recent refactoring

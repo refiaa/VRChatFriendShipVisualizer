@@ -1,62 +1,6 @@
-let currentNodes;
-let currentLinks;
-let currentEventSource = null;
-let zoom;
-let width;
-let height;
-
 document.addEventListener('DOMContentLoaded', function() {
-    showPlaceholder('VRChat Friend Network Analysis', 'Click "Update Visualization" to start');
-
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchText = e.target.value.toLowerCase();
-        clearTimeout(searchTimeout);
-
-        searchTimeout = setTimeout(() => {
-            if (!searchText) {
-                clearSearch();
-                return;
-            }
-
-            const matches = currentNodes.filter(node =>
-                node.name.toLowerCase().includes(searchText)
-            );
-
-            showSearchResults(matches);
-        }, 300);
-    });
-
-    fetch('/api/version')
-        .then(response => response.json())
-        .then(data => {
-            const versionElement = document.getElementById('version');
-            if (versionElement) {
-                versionElement.textContent = `v ${data.version}`;
-            }
-        })
-        .catch(error => {
-            console.error('Failed to load version:', error);
-            const versionElement = document.getElementById('version');
-            if (versionElement) {
-                versionElement.textContent = '';
-            }
-        });
-
-    const collapsible = document.querySelector('.collapsible-button');
-    const content = document.querySelector('.collapsible-content');
-
-    collapsible?.addEventListener('click', function() {
-        this.classList.toggle('active');
-        content.classList.toggle('active');
-
-        const arrow = this.textContent.includes('▼') ? '▲' : '▼';
-        this.textContent = `Data Filter ${arrow}`;
-    });
-
     const startDateSlider = document.getElementById('startDateSlider');
     const endDateSlider = document.getElementById('endDateSlider');
-    const startDateLabel = document.getElementById('startDate');
-    const endDateLabel = document.getElementById('endDate');
 
     startDateSlider?.addEventListener('input', function(e) {
         if (window.dateRange && window.dateRange.totalMonths === 0) {
@@ -178,121 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-async function generateMetadata() {
-    const updateButton = document.getElementById('updateButton');
-    const stopButton = document.getElementById('stopButton');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const progressStatus = document.getElementById('progressStatus');
-    const resultDiv = document.getElementById('result');
-    const debugDiv = document.getElementById('debug');
-
-    try {
-        updateButton.disabled = true;
-        stopButton.disabled = false;
-        loadingOverlay.style.display = 'flex';
-        progressStatus.textContent = 'Initializing...';
-        debugDiv.innerHTML = '';
-
-        const startDateSlider = document.getElementById('startDateSlider');
-        const endDateSlider = document.getElementById('endDateSlider');
-        const startDateLabel = document.getElementById('startDate');
-        const endDateLabel = document.getElementById('endDate');
-
-        if (startDateSlider && endDateSlider) {
-            startDateSlider.value = '0';
-            endDateSlider.value = endDateSlider.max || '100';
-            updateSliderTrack();
-        }
-
-        currentEventSource = new EventSource('/api/metadata/generate');
-
-        currentEventSource.onmessage = async function(event) {
-            const data = JSON.parse(event.data);
-
-            switch(data.type) {
-                case 'start':
-                    progressStatus.textContent = `Starting to process ${data.total} files...`;
-                    break;
-
-                case 'progress':
-                    progressStatus.textContent = `Processing file ${data.current}/${data.total}`;
-                    if (data.error) {
-                        debugDiv.innerHTML += `<div class="error">Error processing: ${data.file}</div>`;
-                    }
-                    break;
-
-                case 'complete':
-                    closeEventSource();
-                    if (data.stopped) {
-                        progressStatus.textContent = '';
-                        resultDiv.innerHTML = '';
-                        loadingOverlay.style.display = 'none';
-
-                        d3.select('#graph svg').remove();
-                        currentNodes = null;
-                        currentLinks = null;
-                    } else {
-                        progressStatus.textContent = 'Processing network data...';
-
-                        // sliderの状態からアップデート
-                        await updateDateRange();
-                        await visualizeNetworkData();
-
-                        resultDiv.innerHTML = `
-                            <h3>Processing Results</h3>
-                            <div class="success">Completed: ${data.successful} / ${data.total}</div>
-                            ${data.failed > 0 ? `<div class="error">Failed: ${data.failed}</div>` : ''}
-                        `;
-                    }
-                    updateButton.disabled = false;
-                    stopButton.disabled = true;
-                    break;
-
-                case 'error':
-                    closeEventSource();
-                    throw new Error(data.error);
-            }
-        };
-
-        currentEventSource.onerror = function() {
-            closeEventSource();
-            updateButton.disabled = false;
-            stopButton.disabled = true;
-            throw new Error('EventSource failed');
-        };
-
-    } catch (error) {
-        console.error('Error:', error);
-        progressStatus.textContent = 'An error occurred';
-        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-        updateButton.disabled = false;
-        stopButton.disabled = true;
-    }
-    await updateDateRange();
-}
-
-function closeEventSource() {
-    if (currentEventSource) {
-        currentEventSource.close();
-        currentEventSource = null;
-    }
-}
-
-async function stopGeneration() {
-    try {
-        const response = await fetch('/api/metadata/stop', {
-            method: 'POST'
-        });
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to stop generation');
-        }
-    } catch (error) {
-        console.error('Error stopping generation:', error);
-    }
-}
-
 async function updateDateRange() {
     try {
         const response = await fetch('/api/metadata/date-range');
@@ -342,15 +171,12 @@ async function updateDateRange() {
         }
 
         if (data.start && data.end) {
-            // Parse dates
             const startDate = new Date(data.start + '-01');
             const endDate = new Date(data.end + '-01');
 
-            // Calculate total months between dates
             const totalMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12
                 + (endDate.getMonth() - startDate.getMonth());
 
-            // Update slider attributes
             startDateSlider.min = 0;
             startDateSlider.max = totalMonths;
             startDateSlider.value = 0;
@@ -359,18 +185,15 @@ async function updateDateRange() {
             endDateSlider.max = totalMonths;
             endDateSlider.value = totalMonths;
 
-            // Update labels
             startDateLabel.textContent = data.start;
             endDateLabel.textContent = data.end;
 
-            // Store the date range for slider calculations
             window.dateRange = {
                 start: startDate,
                 end: endDate,
                 totalMonths: totalMonths
             };
 
-            // Update the slider track
             updateSliderTrack();
             updateSliderState();
         }

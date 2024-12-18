@@ -1,5 +1,3 @@
-let searchTimeout;
-
 function showSearchResults(matches) {
     const resultsDiv = document.getElementById('searchResults');
 
@@ -52,18 +50,6 @@ function highlightNode(nodeId) {
                 .translate(dx, dy)
                 .scale(transform.k)
         );
-}
-
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchResults').style.display = 'none';
-
-    d3.selectAll('.node')
-        .classed('highlighted-node', false)
-        .classed('dimmed', false);
-
-    d3.selectAll('.link')
-        .classed('dimmed', false);
 }
 
 async function updateDirectory() {
@@ -257,4 +243,70 @@ async function exportSVG() {
             exportButton.innerHTML = `<img src="/icon/download.svg" alt="Export" class="icon">`;
         }
     }
+}
+
+function showSearchResults(matches) {
+    const resultsDiv = document.getElementById('searchResults');
+
+    if (matches.length === 0) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+
+    resultsDiv.innerHTML = matches
+        .map(node => `
+            <div class="search-result-item" onclick="highlightNode('${node.id}')">
+                ${node.name} (${node.count} appearances)
+            </div>
+        `)
+        .join('');
+
+    resultsDiv.style.display = 'block';
+}
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').style.display = 'none';
+
+    d3.selectAll('.node')
+        .classed('highlighted-node', false)
+        .classed('dimmed', false);
+
+    d3.selectAll('.link')
+        .classed('dimmed', false);
+}
+
+function highlightNode(nodeId) {
+    const node = currentNodes.find(n => n.id === nodeId);
+    if (!node) return;
+
+    const connectedIds = new Set();
+    currentLinks.forEach(link => {
+        if (link.source.id === nodeId) connectedIds.add(link.target.id);
+        if (link.target.id === nodeId) connectedIds.add(link.source.id);
+    });
+
+    d3.selectAll('.node')
+        .classed('highlighted-node', d => d.id === nodeId)
+        .classed('dimmed', d => d.id !== nodeId && !connectedIds.has(d.id));
+
+    d3.selectAll('.link')
+        .classed('dimmed', d =>
+            d.source.id !== nodeId && d.target.id !== nodeId
+        );
+
+    document.getElementById('searchResults').style.display = 'none';
+
+    const svg = d3.select('#graph svg');
+    const transform = d3.zoomTransform(svg.node());
+    const dx = width / 2 - node.x * transform.k;
+    const dy = height / 2 - node.y * transform.k;
+
+    svg.transition()
+        .duration(750)
+        .call(zoom.transform,
+            d3.zoomIdentity
+                .translate(dx, dy)
+                .scale(transform.k)
+        );
 }

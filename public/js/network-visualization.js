@@ -64,7 +64,8 @@ async function visualizeNetworkData(providedMetadata = null) {
         const getTimeWeight = (timestamp) => {
             const now = new Date().getTime();
             const monthsDiff = (now - timestamp) / (1000 * 60 * 60 * 24 * 30);
-            return Math.exp(-monthsDiff / 12);
+            const baseWeight = Math.exp(-monthsDiff / 36);
+            return Math.max(0.3, baseWeight);
         };
 
         allMetadata.forEach(metadata => {
@@ -152,12 +153,57 @@ async function visualizeNetworkData(providedMetadata = null) {
                 };
             });
 
-        currentNodes = nodes;
-        currentLinks = links;
+        function filterCircularNodes(nodes, links) {
+            const maxAppearanceNode = nodes.reduce((max, node) =>
+                    node.count > max.count ? node : max
+                , nodes[0]);
 
-        console.log(`${nodes.length} nodes and ${links.length} links created`);
+            const nodeStrengths = new Map();
 
-        if (nodes.length === 0) {
+            nodes.forEach(node => {
+                const connectedLinks = links.filter(l =>
+                    l.source === node.id || l.target === node.id
+                );
+
+                const hasMaxNodeConnection = connectedLinks.some(l =>
+                    l.source === maxAppearanceNode.id || l.target === maxAppearanceNode.id
+                );
+
+                const strengths = connectedLinks
+                    .map(l => l.strength)
+                    .sort((a, b) => b - a)
+                    .slice(0, 10);
+
+                nodeStrengths.set(node.id, {
+                    strengths: strengths,
+                    hasMaxNodeConnection: hasMaxNodeConnection
+                });
+            });
+
+            return nodes.filter(node => {
+                const nodeInfo = nodeStrengths.get(node.id);
+                const strengths = nodeInfo.strengths;
+
+                if (strengths.length < 10) return true;
+                if (nodeInfo.hasMaxNodeConnection) return true;
+
+                const firstStrength = strengths[0];
+                return !strengths.slice(0, 10).every(s =>
+                    Math.abs(s - firstStrength) < 0.001
+                );
+            });
+        }
+
+        const filteredNodes = filterCircularNodes(nodes, links);
+        console.log(`Filtered out ${nodes.length - filteredNodes.length} circular reference nodes`);
+
+        currentNodes = filteredNodes;
+        currentLinks = links.filter(l =>
+            filteredNodes.some(n => n.id === l.source) &&
+            filteredNodes.some(n => n.id === l.target)
+        );
+
+        if (filteredNodes.length === 0) {
             showPlaceholder('No Significant Connections', 'Try adjusting the time period or connection threshold');
             document.getElementById('progressStatus').textContent = 'No significant connections found';
             document.getElementById('applyDateFilter').disabled = false;
@@ -175,11 +221,11 @@ async function visualizeNetworkData(providedMetadata = null) {
         const g = svg.append('g');
 
         const colorScale = d3.scaleSequential()
-            .domain([0, d3.max(nodes, d => d.count)])
+            .domain([0, d3.max(filteredNodes, d => d.count)])
             .interpolator(d3.interpolateYlOrRd);
 
-        const simulation = d3.forceSimulation(nodes)
-            .force('link', d3.forceLink(links)
+        const simulation = d3.forceSimulation(filteredNodes)
+            .force('link', d3.forceLink(currentLinks)
                 .id(d => d.id)
                 .distance(d => 200 / (d.strength || 1))
                 .strength(d => 0.1 + d.strength * 0.9))
@@ -195,7 +241,7 @@ async function visualizeNetworkData(providedMetadata = null) {
 
         const linkElements = g.append('g')
             .selectAll('line')
-            .data(links)
+            .data(currentLinks)
             .join('line')
             .attr('class', 'link')
             .style('stroke', d => d.strength <= 0.2 ? '#ddd' : '#999')
@@ -224,7 +270,7 @@ async function visualizeNetworkData(providedMetadata = null) {
 
         const nodeElements = g.append('g')
             .selectAll('g')
-            .data(nodes)
+            .data(filteredNodes)
             .join('g')
             .attr('class', 'node')
             .call(drag);
@@ -253,7 +299,7 @@ async function visualizeNetworkData(providedMetadata = null) {
             const connectedIds = new Set();
             const connectionInfo = new Map();
 
-            links.forEach(l => {
+            currentLinks.forEach(l => {
                 if (l.source.id === d.id) {
                     connectedIds.add(l.target.id);
                     connectionInfo.set(l.target.id, {
@@ -287,7 +333,7 @@ async function visualizeNetworkData(providedMetadata = null) {
             const connections = Array.from(connectedIds)
                 .map(id => {
                     const info = connectionInfo.get(id);
-                    const node = nodes.find(n => n.id === id);
+                    const node = filteredNodes.find(n => n.id === id);
                     return {
                         name: node.name,
                         strength: info.strength,
