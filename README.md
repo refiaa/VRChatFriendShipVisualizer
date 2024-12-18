@@ -86,7 +86,7 @@ Before you begin, ensure you have met the following requirements:
 
 2. **Access the Application:**
    
-   - Open your web browser and navigate to [http://localhost:3000/](http://localhost:3000/) to view the VRChat Friend Network Visualization.
+   - Open your web browser and navigate to [localhost (port:3000)](http://localhost:3000/) to view the VRChat Friend Network Visualization.
    - Place your VRChat photos inside the `./img` folder or Paste the directory path of your VRChat Pictures and click `update directory`. Ensure that the images are in a supported format.
    - And use `Update Visualization` to show Friend Network from your pictures.
    
@@ -104,7 +104,7 @@ The project relies on the following major dependencies:
   - **Note:** Ensure your `package.json` includes necessary scripts and dependencies for running the server.
 
 ## Changelog
-See [CHANGELOG.md](CHANGELOG.md) for a list of notable changes and updates.
+See [CHANGELOG](CHANGELOG.md) for a list of notable changes and updates.
 
 ## License
 
