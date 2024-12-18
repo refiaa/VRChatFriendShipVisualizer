@@ -9,6 +9,24 @@ let searchTimeout;
 document.addEventListener('DOMContentLoaded', function() {
     showPlaceholder('VRChat Friend Network Analysis', 'Click "Update Visualization" to start');
 
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchText = e.target.value.toLowerCase();
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(() => {
+            if (!searchText) {
+                clearSearch();
+                return;
+            }
+
+            const matches = currentNodes.filter(node =>
+                node.name.toLowerCase().includes(searchText)
+            );
+
+            showSearchResults(matches);
+        }, 300);
+    });
+
     const collapsible = document.querySelector('.collapsible-button');
     const content = document.querySelector('.collapsible-content');
 
