@@ -29,24 +29,74 @@ export function createRouter(
   const metadataDateRangeEndpoint = new MetadataDateRangeEndpoint(fileStorageService);
   const metadataFilterEndpoint = new MetadataFilterEndpoint(fileStorageService);
 
-  router.get("/metadata/generate", (req: Request, res: Response, next: NextFunction) =>
-    metadataGenerationEndpoint.handle(res).catch(next),
-  );
+  /**
+   * POST /config/directory
+   * Sets the working directory for image processing
+   */
   router.post("/config/directory", (req: Request, res: Response, next: NextFunction) =>
     configDirectoryEndpoint.handle(req, res).catch(next),
   );
+
+  /**
+   * GET /metadata/date-range
+   * Retrieves the date range of available metadata files
+   */
+  router.get("/metadata/date-range", (req: Request, res: Response, next: NextFunction) =>
+      metadataDateRangeEndpoint.handle(req, res).catch(next),
+  );
+
+  /**
+   * GET /metadata/generate
+   * Initiates metadata generation process with SSE progress updates
+   */
+  router.get("/metadata/generate", (req: Request, res: Response, next: NextFunction) =>
+      metadataGenerationEndpoint.handle(res).catch(next),
+  );
+
+  /**
+   * GET /metadata/files
+   * Lists all available metadata files
+   */
   router.get("/metadata/files", (req: Request, res: Response, next: NextFunction) =>
     metadataFilesEndpoint.handle(req, res).catch(next),
   );
+
+  /**
+   * GET /metadata/file/:filename(*)
+   * Retrieves content of a specific metadata file
+   */
   router.get("/metadata/file/:filename(*)", (req: Request, res: Response, next: NextFunction) =>
     metadataFileEndpoint.handle(req, res).catch(next),
   );
+
+  /**
+   * POST /metadata/filter
+   * Filters metadata files by date range
+   */
+  router.post("/metadata/filter", (req: Request, res: Response, next: NextFunction) =>
+      metadataFilterEndpoint.handle(req, res).catch(next),
+  );
+
+  /**
+   * POST /metadata/stop
+   * Stops ongoing metadata generation process
+   */
   router.post("/metadata/stop", (req: Request, res: Response, next: NextFunction) =>
     metadataStopEndpoint.handle(req, res).catch(next),
   );
+
+  /**
+   * POST /upload/image
+   * Handles image file upload and processing
+   */
   router.post("/upload/image", (req: Request, res: Response, next: NextFunction) =>
     imageUploadEndpoint.handle(req, res).catch(next),
   );
+
+  /**
+   * GET /version
+   * Returns the application version from VERSION file
+   */
   router.get("/version", async (req: Request, res: Response) => {
     try {
       const versionPath = path.join(__dirname, "../../VERSION");
@@ -57,12 +107,6 @@ export function createRouter(
       res.json({ version: "0.0.0" });
     }
   });
-  router.get("/metadata/date-range", (req: Request, res: Response, next: NextFunction) =>
-    metadataDateRangeEndpoint.handle(req, res).catch(next),
-  );
-  router.post("/metadata/filter", (req: Request, res: Response, next: NextFunction) =>
-    metadataFilterEndpoint.handle(req, res).catch(next),
-  );
 
   return router;
 }
