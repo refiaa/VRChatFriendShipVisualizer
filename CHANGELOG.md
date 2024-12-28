@@ -47,3 +47,7 @@
 
 ### Bugfixes
 - Fixed search functionality after recent refactoring
+
+## 0.0.3.3 - 2024-12-28
+### Changes
+- Modified default image directory path to use user's VRChat folder
