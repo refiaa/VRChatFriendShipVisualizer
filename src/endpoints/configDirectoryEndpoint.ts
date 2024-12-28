@@ -11,7 +11,7 @@ export class ConfigDirectoryEndpoint {
       const { directory } = req.body;
       const absolutePath = directory
         ? path.resolve(directory)
-        : path.join(__dirname, "../../../img");
+        : path.join(process.env.USERPROFILE || "", "Pictures", "VRChat");
 
       const stats = await fs.stat(absolutePath);
       if (!stats.isDirectory()) {
