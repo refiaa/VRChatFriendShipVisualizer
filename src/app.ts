@@ -31,7 +31,11 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/icon", express.static(path.join(__dirname, "../icon")));
 
 // Router設定
-const apiRouter = createRouter(metadataController, imageController, fileStorageService); // Pass FileStorageService
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+const apiRouter = createRouter(metadataController, imageController, fileStorageService, server); // Pass server instance
 app.use("/api", apiRouter);
 
 app.get("/", (req: Request, res: Response) => {
@@ -40,8 +44,4 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-export default app;
+export { app, server };

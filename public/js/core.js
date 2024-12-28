@@ -76,3 +76,20 @@ function clearSearch() {
     d3.selectAll('.link')
         .classed('dimmed', false);
 }
+
+async function shutdownServer() {
+    if (confirm('Are you sure you want to shutdown the server?')) {
+        try {
+            const response = await fetch('/api/server/shutdown', {
+                method: 'POST',
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Server is shutting down...');
+            }
+        } catch (error) {
+            console.error('Failed to shutdown server:', error);
+            alert('Failed to shutdown server');
+        }
+    }
+}
