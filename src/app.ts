@@ -14,7 +14,7 @@ const PORT: number = Number.parseInt(process.env.PORT || "3000", 10);
 
 // 設定
 const config: Config = {
-  imgDir: path.join(__dirname, "../icon"),
+  imgDir: path.join(process.env.USERPROFILE || "", "Pictures", "VRChat"),
   metadataDir: path.join(__dirname, "../data/metadata"),
   uploadDir: path.join(__dirname, "../public/uploads"),
 };
