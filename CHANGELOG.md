@@ -51,3 +51,9 @@
 ## 0.0.3.3 - 2024-12-28
 ### Changes
 - Modified default image directory path to use user's VRChat folder
+
+## 0.0.3.4 - 2024-12-28
+### New features
+- Added server shutdown functionality
+  - Added shutdown server button to UI
+  - Implemented clean server shutdown endpoint

@@ -142,6 +142,9 @@ async function visualizeNetworkData(providedMetadata = null) {
             .map(([id, count]) => ({
                 id: id,
                 name: playerInfoMap.get(id) || id,
+                // masking option for top image (temp)
+                // TODO : あとで機能として追加したい
+                // name: (playerInfoMap.get(id) || id).replace(/^(.)(.+)$/, '$1' + '*'.repeat(2)),
                 count: count
             }));
 

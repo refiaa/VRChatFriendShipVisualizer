@@ -11,12 +11,14 @@ import { MetadataFilesEndpoint } from "../endpoints/metadataFilesEndpoint";
 import { MetadataFilterEndpoint } from "../endpoints/metadataFilterEndpoint";
 import { MetadataGenerationEndpoint } from "../endpoints/metadataGenerationEndpoint";
 import { MetadataStopEndpoint } from "../endpoints/metadataStopEndpoint";
+import { ServerShutdownEndpoint } from "../endpoints/serverShutdownEndpoint";
 import type { FileStorageService } from "../services/fileStorageService";
 
 export function createRouter(
   metadataController: MetadataController,
   imageController: ImageController,
   fileStorageService: FileStorageService,
+  server: any,
 ): Router {
   const router: Router = Router();
 
@@ -28,6 +30,7 @@ export function createRouter(
   const metadataFileEndpoint = new MetadataFileEndpoint(fileStorageService);
   const metadataDateRangeEndpoint = new MetadataDateRangeEndpoint(fileStorageService);
   const metadataFilterEndpoint = new MetadataFilterEndpoint(fileStorageService);
+  const serverShutdownEndpoint = new ServerShutdownEndpoint(server);
 
   /**
    * POST /config/directory
@@ -91,6 +94,14 @@ export function createRouter(
    */
   router.post("/upload/image", (req: Request, res: Response, next: NextFunction) =>
     imageUploadEndpoint.handle(req, res).catch(next),
+  );
+
+  /**
+   * POST /server/shutdown
+   * Safely shuts down the server
+   */
+  router.post("/server/shutdown", (req: Request, res: Response, next: NextFunction) =>
+      serverShutdownEndpoint.handle(req, res).catch(next),
   );
 
   /**

@@ -470,3 +470,12 @@ button:disabled {
     border-bottom-color: #cccccc;
     cursor: not-allowed;
 }
+
+.shutdown-button {
+    background-color: #ff4444;
+    color: white;
+}
+
+.shutdown-button:hover {
+    background-color: #cc0000;
+}
