@@ -69,11 +69,8 @@ Before you begin, ensure you have met the following requirements:
 
 1. **Prepare VRChat Images:**
 
-   - Create an `img` folder in the root directory of the project if it doesn't exist, or find path of your VRChat Pictures:
-     ```bash
-     mkdir img
-     ```
-  
+   - To use VRChat's default image storage folder, leave it as is. If you wish to use a different folder, please enter the corresponding path.
+
 
 ## Usage
 
