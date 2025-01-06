@@ -3,6 +3,15 @@
 
 # VRChat Friend Network
 
+<!-- shields -->
+[![GitHub License](https://img.shields.io/github/license/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=red)](https://github.com/refiaa/VRChatFriendShipVisualizer/blob/master/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=yellow)](https://github.com/refiaa/VRChatFriendShipVisualizer/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=green)](https://github.com/refiaa/VRChatFriendShipVisualizer/network/members)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=blue)](https://github.com/refiaa/VRChatFriendShipVisualizer/pulls?q=is%3Apr+is%3Aclosed)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=purple)](https://github.com/refiaa/VRChatFriendShipVisualizer/issues?q=is%3Aissue+is%3Aclosed)
+<!-- end shields -->
+
+
 ![preview](./image/main.png)
 
 A web-based application that visualizes your VRChat friends network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
