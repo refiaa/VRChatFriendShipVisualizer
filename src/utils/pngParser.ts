@@ -15,7 +15,7 @@ export class PNGParser {
       return this.extractMetadata(data);
     } catch (error) {
       throw new Error(
-        `Failed to parse PNG file: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to parse PNG file: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -46,7 +46,7 @@ export class PNGParser {
     } catch (error) {
       console.error("Raw iTXt chunk data:", iTXtChunk.data.toString("utf-8"));
       throw new Error(
-        `Failed to parse metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to parse metadata: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -65,14 +65,7 @@ export class PNGParser {
       const type = data.toString("ascii", offset + 4, offset + 8);
       const chunkData = data.slice(offset + 8, offset + 8 + length);
       const crc = data.readUInt32BE(offset + 8 + length);
-
-      chunks.push({
-        length,
-        type,
-        data: chunkData,
-        crc,
-      });
-
+      chunks.push({ length, type, data: chunkData, crc });
       offset += 12 + length;
       if (type === "IEND") break;
     }

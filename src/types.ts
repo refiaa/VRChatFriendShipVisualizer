@@ -1,5 +1,3 @@
-import { Request, Response } from "express";
-
 export interface Config {
   imgDir: string;
   metadataDir: string;
@@ -40,7 +38,6 @@ interface ProgressComplete {
 }
 
 export type ProgressData = ProgressStart | ProgressUpdate | ProgressComplete;
-
 export type ProgressCallback = (progress: ProgressData) => void;
 
 export interface PNGChunk {

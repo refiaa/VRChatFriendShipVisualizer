@@ -1,40 +1,41 @@
-
 <div align="center">
 
 # VRChat Friend Network
 
-<!-- shields -->
+<!-- Shields -->
 [![GitHub License](https://img.shields.io/github/license/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=red)](https://github.com/refiaa/VRChatFriendShipVisualizer/blob/master/LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=yellow)](https://github.com/refiaa/VRChatFriendShipVisualizer/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=green)](https://github.com/refiaa/VRChatFriendShipVisualizer/network/members)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=blue)](https://github.com/refiaa/VRChatFriendShipVisualizer/pulls?q=is%3Apr+is%3Aclosed)
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=purple)](https://github.com/refiaa/VRChatFriendShipVisualizer/issues?q=is%3Aissue+is%3Aclosed)
-<!-- end shields -->
-
+[![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=blue)](https://github.com/refiaa/VRChatFriendShipVisualizer/pulls?q=is%3Apr+is%3Aclosed)
+[![GitHub Closed Issues](https://img.shields.io/github/issues-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=purple)](https://github.com/refiaa/VRChatFriendShipVisualizer/issues?q=is%3Aissue+is%3Aclosed)
 
 ![preview](./image/main.png)
 
-A web-based application that visualizes your VRChat friends network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
+</div>
 
-You can only use photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX) is running.
+A web-based application that visualizes your VRChat friend network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
+
+Only photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX) is running are supported. In addition, only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
 
 <div align="center">
-
+  
 ![preview](./image/help.png)
 
-Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
+</div>
 
 <div align="left">
 
 ---
 
 - [Features](#features)
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
+   - [Installation as a Standalone EXE](#installation-as-a-standalone-exe)
+  - [Installation via Node.js (for dev)](#installation-via-nodejs)
 - [Setup](#setup)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
-- [Changelog](#Changelog)
+- [VirusTotal Scan](#virustotal-scan)
+- [Changelog](#changelog)
 - [License](#license)
 
 ## Features
@@ -44,9 +45,34 @@ Also, Only photos taken with the `screenshot helper` **enabled** in VRCX can be 
 - **Interactive Network Graph:** Visualize connections between VRChat players with dynamic force-directed graphs.
 - **Search Functionality:** Easily search for players by name and highlight their connections.
 - **Responsive Design:** Accessible and functional across various screen sizes.
-- **Share and Download** You can download image by SVG or share to the twitter via `tmpfiles`
-- **Date Range-based Data Filter** You can filter your pictures by date range using a slider bar.
-## Prerequisites
+- **Share and Download:** Download your network visualization as an SVG or share directly to Twitter using tmpfiles.org.
+- **Date Range-based Data Filter:** Filter your images by date range using an intuitive slider.
+- **EXE Installation Package:** (New) Install the application as a standalone Windows program with typical installer features (default installation folder, desktop and start menu shortcuts).
+
+## Installation
+
+
+### Installation as a Standalone EXE
+
+For users who prefer a traditional desktop installation, a standalone EXE package is available.
+
+1. **Download the Installer:**
+   - Visit the [GitHub Releases](https://github.com/refiaa/VRChatFriendShipVisualizer/releases) page and download the latest installer (EXE).
+
+2. **Run the Installer:**
+   - Double-click the installer.
+   - Follow the on-screen instructions to install the application (default installation directory is typically `C:\Program Files\VRChatFriendShipVisualizer`).
+   - During installation, you can change the installation directory if desired.
+   - The installer will automatically create desktop and Start Menu shortcuts.
+
+3. **Run the Application:**
+   - After installation, launch the app either from the desktop shortcut or from the Start Menu.
+   - The application will run as a standalone desktop application with an embedded Express server and all features intact.
+
+
+### Installation via Node.js
+
+#### Prerequisites
 
 Before you begin, ensure you have met the following requirements:
 
@@ -57,13 +83,11 @@ Before you begin, ensure you have met the following requirements:
   npm -v
   ```
 
-## Installation
-
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/refiaa/VRChatFriendShipVisualizer.git
    ```
-   
+
 2. **Navigate to the Project Directory:**
    ```bash
    cd VRChatFriendShipVisualizer
@@ -74,41 +98,58 @@ Before you begin, ensure you have met the following requirements:
    npm install
    ```
 
-## Setup
-
-1. **Prepare VRChat Images:**
-
-   - To use VRChat's default image storage folder, leave it as is. If you wish to use a different folder, please enter the corresponding path.
-
-
-## Usage
-
-1. **Start the Development Server:**
+4. **Run the Application:**
    ```bash
    npm run dev
    ```
+    - The development server will start on the configured port (default is 3000).
+    - Open your browser and navigate to [http://localhost:3000](http://localhost:3000/) to view the application.
 
-2. **Access the Application:**
-   
-   - Open your web browser and navigate to [localhost (port:3000)](http://localhost:3000/) to view the VRChat Friend Network Visualization.
-   - Place your VRChat photos inside the `./img` folder or Paste the directory path of your VRChat Pictures and click `update directory`. Ensure that the images are in a supported format.
-   - And use `Update Visualization` to show Friend Network from your pictures.
-   
+## Setup
+
+1. **Prepare VRChat Images:**
+    - By default, the application uses your VRChat image folder located at:
+      ```
+      C:\Users\{YourUsername}\Pictures\VRChat
+      ```
+    - To change the directory, use the directory configuration option in the app UI.
+
+2. **Metadata Generation:**
+    - Metadata is generated from your VRChat photos and stored in the `metadata` folder located inside your VRChat folder:
+      ```
+      C:\Users\{YourUsername}\Pictures\VRChat\metadata
+      ```
+
+## Usage
+
+1. **Start the Application:**
+    - For Node.js version, run `npm run dev` and navigate to [http://localhost:3000](http://localhost:3000/).
+    - For the EXE version, simply launch the installed application.
+
+2. **Update Visualization:**
+    - Place your VRChat photos in the designated folder or configure a new directory.
+    - Click on **Update Visualization** to generate the friend network graph.
+
+3. **Additional Features:**
+    - Use the search functionality to highlight specific nodes.
+    - Filter data by date range using the slider.
+    - Export the visualization as an SVG or share via Twitter.
 
 ## Dependencies
 
-The project relies on the following major dependencies:
+- **D3.js:** Used for dynamic, interactive network graph visualizations.
+- **Express.js:** Provides a RESTful API and serves the web application.
+- **Electron:** Packages the application as a standalone desktop app.
+- **Additional Libraries:** form-data, fs-extra, node-fetch, and others as listed in package.json.
 
-- **D3.js:** A JavaScript library for producing dynamic, interactive data visualizations in web browsers.
-  - **CDN Link:** Included via
-    ```js
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    ```
-- **Node.js & Express:** Backend server to handle API requests and serve the frontend.
-  - **Note:** Ensure your `package.json` includes necessary scripts and dependencies for running the server.
+## VirusTotal Scan
+
+This executable package has been scanned on [VirusTotal](https://www.virustotal.com/gui/file/f6864c0f5ca58c3448dc0800209a7fc2f6244e887dceecbffb27bec97861eb08) and is reported clean by most antivirus engines. Minor detections (e.g., Bkav Pro) are known false positives common with Electron applications.
+
 
 ## Changelog
-See [CHANGELOG](CHANGELOG.md) for a list of notable changes and updates.
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of notable changes and updates.
 
 ## License
 

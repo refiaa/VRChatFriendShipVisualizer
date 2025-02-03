@@ -1,4 +1,3 @@
-import path from "path";
 import type { Request, Response } from "express";
 import type { FileStorageService } from "../services/fileStorageService";
 
@@ -7,7 +6,7 @@ export class MetadataFileEndpoint {
 
   async handle(req: Request, res: Response): Promise<void> {
     try {
-      const filename = req.params.filename;
+      const filename: string = req.params["filename"]!;
       const data = await this.fileStorageService.readMetadataFile(filename);
       res.json(data);
     } catch (error) {

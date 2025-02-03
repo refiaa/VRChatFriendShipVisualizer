@@ -6,11 +6,8 @@ export class MetadataFilterEndpoint {
 
   async handle(req: Request, res: Response): Promise<void> {
     try {
-      const { startDate, endDate } = req.body;
-      const filteredFiles = await this.fileStorageService.filterMetadataFilesByDate(
-        startDate,
-        endDate,
-      );
+      const { startDate, endDate } = req.body as { startDate: string; endDate: string };
+      const filteredFiles = await this.fileStorageService.filterMetadataFilesByDate(startDate, endDate);
       res.json(filteredFiles);
     } catch (error) {
       console.error("Error in MetadataFilterEndpoint:", error);
