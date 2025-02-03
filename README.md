@@ -4,10 +4,12 @@
 
 <!-- Shields -->
 [![GitHub License](https://img.shields.io/github/license/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=red)](https://github.com/refiaa/VRChatFriendShipVisualizer/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/refiaa/VRChatFriendShipVisualizer/total?color=orange)](https://github.com/refiaa/VRChatFriendShipVisualizer/releases/latest)
 [![GitHub Stars](https://img.shields.io/github/stars/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=yellow)](https://github.com/refiaa/VRChatFriendShipVisualizer/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=green)](https://github.com/refiaa/VRChatFriendShipVisualizer/network/members)
 [![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=blue)](https://github.com/refiaa/VRChatFriendShipVisualizer/pulls?q=is%3Apr+is%3Aclosed)
 [![GitHub Closed Issues](https://img.shields.io/github/issues-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=purple)](https://github.com/refiaa/VRChatFriendShipVisualizer/issues?q=is%3Aissue+is%3Aclosed)
+
 
 ![preview](./image/main.png)
 
