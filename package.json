@@ -2,16 +2,21 @@
   "name": "vrchatfriendshipvisualizer",
   "version": "1.0.0",
   "description": "VRChat friendship network visualization tool",
-  "main": "src/app.js",
+  "main": "dist/electron/main.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "electron .",
     "dev": "nodemon --exec ts-node src/app.ts --ignore 'data/*' --ignore 'public/*'",
-    "build": "tsc",
+    "build": "tsc && npm run copy-public",
+    "copy-public": "copyfiles -u 1 public/**/* dist/public",
     "format": "npx biome format --write .",
-    "lint": "npx biome lint ."
+    "lint": "npx biome lint .",
+    "electron:build": "cross-env WIN_CSC_LINK=\"\" CSC_LINK=\"\" CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder"
   },
-
-  "keywords": ["vrchat", "network", "visualization"],
+  "keywords": [
+    "vrchat",
+    "network",
+    "visualization"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -23,19 +28,51 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@types/d3": "^7.4.3",
+    "@types/electron": "^1.6.12",
     "@types/express": "^5.0.0",
     "@types/form-data": "^2.5.2",
     "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.10.2",
     "@types/node-fetch": "^2.6.12",
+    "concurrently": "^9.1.2",
+    "copyfiles": "^2.4.1",
+    "cross-env": "^7.0.3",
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
     "globals": "^15.13.0",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
   "nodemonConfig": {
-    "ignore": ["data/*", "public/*", "*.json"],
-    "watch": ["src/"],
+    "ignore": [
+      "data/*",
+      "public/*",
+      "*.json"
+    ],
+    "watch": [
+      "src/",
+      "electron/"
+    ],
     "ext": "js,ts"
+  },
+  "build": {
+    "appId": "refiaa.vrchatfriendshipvisualizer",
+    "files": [
+      "dist/**/*",
+      "public/**/*",
+      "node_modules/**/*",
+      "src/**/*"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "certificateFile": null,
+      "certificateSubjectName": null,
+      "signAndEditExecutable": false
+    }
   }
 }
