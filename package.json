@@ -6,8 +6,9 @@
   "scripts": {
     "start": "electron .",
     "dev": "nodemon --exec ts-node src/app.ts --ignore 'data/*' --ignore 'public/*'",
-    "build": "tsc && npm run copy-public",
+    "build": "tsc && npm run copy-public && npm run copy-version",
     "copy-public": "copyfiles -u 1 public/**/* dist/public",
+    "copy-version": "copyfiles -u 0 VERSION dist/",
     "format": "npx biome format --write .",
     "lint": "npx biome lint .",
     "electron:build": "cross-env WIN_CSC_LINK=\"\" CSC_LINK=\"\" CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder"
@@ -59,6 +60,7 @@
     "ext": "js,ts"
   },
   "build": {
+    "asar": true,
     "appId": "refiaa.vrchatfriendshipvisualizer",
     "files": [
       "dist/**/*",
@@ -69,10 +71,23 @@
     "directories": {
       "buildResources": "build"
     },
+    "extraResources": [
+      "VERSION",
+      "LICENSE"
+    ],
     "win": {
       "certificateFile": null,
       "certificateSubjectName": null,
       "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "VRChatFriendShipVisualizer"
     }
   }
 }
