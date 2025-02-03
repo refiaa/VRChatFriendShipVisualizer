@@ -168,57 +168,37 @@ async function visualizeNetworkData(providedMetadata = null) {
                 };
             });
 
-        /**
-         * Filter function for suspected circular reference nodes
-         *
-         * Filtering criteria:
-         * Nodes are preserved if:
-         *    - Has fewer than 10 relationship strength values
-         *    - Connected to the node with highest appearances
-         *    - Top 10 strength values are not all identical
-         * Nodes are filtered out if:
-         *    - Has 10 or more identical strength values AND
-         *    - Not connected to the node with highest appearances
-         */
-
         function filterCircularNodes(nodes, links) {
-            const maxAppearanceNode = nodes.reduce((max, node) =>
-                    node.count > max.count ? node : max
-                , nodes[0]);
+            const maxAppearanceNode = nodes.reduce((max, node) => {
+                return node.count > max.count ? node : max;
+            }, nodes[0]);
 
-            const nodeStrengths = new Map();
+            const nodeStats = new Map();
 
             nodes.forEach(node => {
-                const connectedLinks = links.filter(l =>
-                    l.source === node.id || l.target === node.id
+                const connectedLinks = links.filter(link => link.source === node.id || link.target === node.id);
+                const hasMaxNodeConnection = connectedLinks.some(link =>
+                    link.source === maxAppearanceNode.id || link.target === maxAppearanceNode.id
                 );
 
-                const hasMaxNodeConnection = connectedLinks.some(l =>
-                    l.source === maxAppearanceNode.id || l.target === maxAppearanceNode.id
+                const strengths = connectedLinks.map(link => link.strength);
+                const topStrengths = strengths.sort((a, b) => b - a).slice(0, 10);
+                const mean = topStrengths.reduce((sum, s) => sum + s, 0) / topStrengths.length;
+                const stdDev = Math.sqrt(
+                    topStrengths.reduce((sum, s) => sum + Math.pow(s - mean, 2), 0) / topStrengths.length
                 );
+                const cv = mean === 0 ? 0 : stdDev / mean;
 
-                const strengths = connectedLinks
-                    .map(l => l.strength)
-                    .sort((a, b) => b - a)
-                    .slice(0, 10);
-
-                nodeStrengths.set(node.id, {
-                    strengths: strengths,
-                    hasMaxNodeConnection: hasMaxNodeConnection
-                });
+                nodeStats.set(node.id, { topStrengths, hasMaxNodeConnection, mean, stdDev, cv });
             });
 
+            const CV_THRESHOLD = 0.05;
+
             return nodes.filter(node => {
-                const nodeInfo = nodeStrengths.get(node.id);
-                const strengths = nodeInfo.strengths;
-
-                if (strengths.length < 10) return true;
-                if (nodeInfo.hasMaxNodeConnection) return true;
-
-                const firstStrength = strengths[0];
-                return !strengths.slice(0, 10).every(s =>
-                    Math.abs(s - firstStrength) < 0.001
-                );
+                const stats = nodeStats.get(node.id);
+                if (!stats || stats.topStrengths.length < 3) return true;
+                if (stats.hasMaxNodeConnection) return true;
+                return stats.cv >= CV_THRESHOLD;
             });
         }
 
