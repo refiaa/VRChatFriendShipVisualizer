@@ -57,3 +57,23 @@
 - Added server shutdown functionality
   - Added shutdown server button to UI
   - Implemented clean server shutdown endpoint
+
+---
+
+## 0.1.0 - 2025-02-03
+
+### New Features
+- **EXE Packaging**
+
+- **Backend Enhancements**
+  - Changed the metadata storage directory to the user's Pictures folder under `VRChat\metadata` so that metadata JSON files are generated in a familiar and accessible location (e.g., `C:\Users\{username}\Pictures\VRChat\metadata`).
+  - Refactored file path and environment variable handling in backend APIs to improve stability and error handling.
+
+### Changes
+- Optimized the list of files and dependencies included in the final bundle to exclude unnecessary development files and resources.
+- Updated NSIS installer configuration to allow users to change the installation directory and to create shortcuts on the desktop and in the Start Menu.
+- Refactored metadata directory initialization to correctly handle existing files versus directories, ensuring that the metadata directory is properly created even in a packaged environment.
+
+### Bugfixes
+- Fixed an issue where the metadata directory initialization would fail with an ENOTDIR error by changing the metadata directory to a more appropriate location (under `Pictures\VRChat\metadata`).
+- Addressed minor API and UI issues, including proper handling of environment variables and file paths in the backend.
