@@ -6,11 +6,10 @@ export class ImageController {
 
   async uploadImage(req: Request, res: Response): Promise<void> {
     try {
-      const { imageData } = req.body;
+      const { imageData } = req.body as { imageData?: string };
       if (!imageData) {
         throw new Error("No image data provided");
       }
-
       const imageUrl = await this.imageService.saveImage(imageData);
       res.json({ success: true, url: imageUrl });
     } catch (error) {

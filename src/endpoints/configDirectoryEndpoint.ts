@@ -8,10 +8,10 @@ export class ConfigDirectoryEndpoint {
 
   async handle(req: Request, res: Response): Promise<void> {
     try {
-      const { directory } = req.body;
+      const { directory } = req.body as { directory?: string };
       const absolutePath = directory
-        ? path.resolve(directory)
-        : path.join(process.env.USERPROFILE || "", "Pictures", "VRChat");
+          ? path.resolve(directory)
+          : path.join(process.env["USERPROFILE"] || "", "Pictures", "VRChat");
 
       const stats = await fs.stat(absolutePath);
       if (!stats.isDirectory()) {
@@ -20,13 +20,8 @@ export class ConfigDirectoryEndpoint {
       }
 
       await fs.access(absolutePath, fs.constants.R_OK);
-
       this.metadataController.updateConfig({ imgDir: absolutePath });
-
-      res.json({
-        success: true,
-        directory: absolutePath,
-      });
+      res.json({ success: true, directory: absolutePath });
     } catch (error) {
       console.error("Error in ConfigDirectoryEndpoint:", error);
       res.status(400).json({

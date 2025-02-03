@@ -11,8 +11,8 @@ export class ImageService {
       if (!matches || matches.length !== 3) {
         throw new Error("Invalid base64 data");
       }
-
-      const buffer = Buffer.from(matches[2], "base64");
+      const base64String = matches[2]!;
+      const buffer = Buffer.from(base64String, "base64");
 
       const formData = new FormData();
       formData.append("file", buffer, {

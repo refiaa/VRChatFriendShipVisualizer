@@ -32,12 +32,12 @@
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -45,9 +45,7 @@
     "emitDecoratorMetadata": true,
     "types": [
       "node",
-      "express",
-      "jest",
-      "d3"
+      "express"
     ],
     "typeRoots": [
       "./node_modules/@types",
@@ -55,14 +53,8 @@
     ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.js",
-    "src/**/*.jsx",
-    "src/**/*.json",
-    "img/**/*",
-    "data/**/*",
-    "public/**/*",
+    "src/**/*",
+    "electron/**/*",
     "*.json",
     "VERSION"
   ],
@@ -71,7 +63,7 @@
     "dist",
     "build",
     "coverage",
-    "**/*.spec.ts"
+    "public"
   ],
   "ts-node": {
     "files": true,

@@ -32,12 +32,32 @@ export class MetadataService {
 
   async initialize(): Promise<void> {
     try {
-      await this.clearMetadataDirectory();
+      let exists = false;
+      try {
+        await fs.access(this.metadataDir);
+        exists = true;
+      } catch (e) {
+        exists = false;
+      }
+
+      if (exists) {
+        const stats = await fs.stat(this.metadataDir);
+        if (!stats.isDirectory()) {
+          try {
+            await fs.unlink(this.metadataDir);
+            console.log(`Existing file at metadataDir was removed: ${this.metadataDir}`);
+          } catch (unlinkError) {
+            throw new Error(`Unable to remove file at metadataDir: ${unlinkError instanceof Error ? unlinkError.message : "Unknown error"}`);
+          }
+        } else {
+          await this.clearMetadataDirectory();
+        }
+      }
       await fs.mkdir(this.metadataDir, { recursive: true });
       console.log("Metadata directory initialized:", this.metadataDir);
     } catch (error) {
       throw new Error(
-        `Failed to initialize metadata directory: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to initialize metadata directory: ${error instanceof Error ? error.message : "Unknown error"}`
       );
     }
   }
@@ -45,9 +65,9 @@ export class MetadataService {
   async clearMetadataDirectory(): Promise<void> {
     try {
       const exists = await fs
-        .access(this.metadataDir)
-        .then(() => true)
-        .catch(() => false);
+          .access(this.metadataDir)
+          .then(() => true)
+          .catch(() => false);
 
       if (exists) {
         const deleteRecursive = async (dirPath: string): Promise<void> => {
@@ -89,10 +109,7 @@ export class MetadataService {
         } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".png")) {
           console.log("Found PNG file:", fullPath);
           const relativePath = path.relative(this.imgDir, fullPath);
-          pngFiles.push({
-            fullPath,
-            relativePath,
-          });
+          pngFiles.push({ fullPath, relativePath });
         }
       }
     } catch (error) {
@@ -118,13 +135,12 @@ export class MetadataService {
       await fs.writeFile(outputPath, JSON.stringify(metadata, null, 2), "utf-8");
       console.log("Saved metadata to:", outputPath);
 
-      return {
-        originalPath: imagePath,
-        metadata,
-      };
+      return { originalPath: imagePath, metadata };
     } catch (error) {
       throw new Error(
-        `Failed to process image ${path.basename(imagePath)}: ${error instanceof Error ? error.message : "Unknown error"}`,
+          `Failed to process image ${path.basename(imagePath)}: ${
+              error instanceof Error ? error.message : "Unknown error"
+          }`
       );
     }
   }
@@ -137,10 +153,7 @@ export class MetadataService {
       const totalFiles = pngFiles.length;
       console.log(`Found ${totalFiles} PNG files in total`);
 
-      progressCallback({
-        type: "start",
-        total: totalFiles,
-      });
+      progressCallback({ type: "start", total: totalFiles });
 
       const results: MetadataResult[] = [];
       for (let i = 0; i < pngFiles.length; i++) {
@@ -149,6 +162,7 @@ export class MetadataService {
         }
 
         const file = pngFiles[i];
+        if (!file) continue;
         try {
           console.log(`Processing file (${i + 1}/${totalFiles}): ${file.relativePath}`);
           const result = await this.processImage(file.fullPath);

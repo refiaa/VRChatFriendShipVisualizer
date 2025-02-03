@@ -4,7 +4,7 @@ import type { FileStorageService } from "../services/fileStorageService";
 export class MetadataFilesEndpoint {
   constructor(private fileStorageService: FileStorageService) {}
 
-  async handle(req: Request, res: Response): Promise<void> {
+  async handle(_req: Request, res: Response): Promise<void> {
     try {
       const files = await this.fileStorageService.getAllMetadataFiles();
       res.json(files);

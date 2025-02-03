@@ -28,10 +28,10 @@ export class MetadataGenerationEndpoint {
     } catch (error) {
       console.error("Error in MetadataGenerationEndpoint:", error);
       res.write(
-        `data: ${JSON.stringify({
-          type: "error",
-          error: error instanceof Error ? error.message : "Unknown error",
-        })}\n\n`,
+          `data: ${JSON.stringify({
+            type: "error",
+            error: error instanceof Error ? error.message : "Unknown error",
+          })}\n\n`
       );
       res.end();
     }

@@ -21,7 +21,6 @@ export class MetadataController {
       this.isGenerating = true;
       await this.metadataService.initialize();
       const results = await this.metadataService.processDirectory(progressCallback);
-
       return {
         total: results.length,
         successful: results.filter((r) => r.success).length,
@@ -31,9 +30,7 @@ export class MetadataController {
     } catch (error) {
       if (error instanceof Error && error.message === "Generation stopped") {
         await this.metadataService.clearMetadataDirectory();
-        return {
-          stopped: true,
-        };
+        return { stopped: true };
       }
       console.error("Error generating metadata:", error);
       throw error;

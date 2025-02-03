@@ -4,7 +4,7 @@ import type { FileStorageService } from "../services/fileStorageService";
 export class MetadataDateRangeEndpoint {
   constructor(private fileStorageService: FileStorageService) {}
 
-  async handle(req: Request, res: Response): Promise<void> {
+  async handle(_req: Request, res: Response): Promise<void> {
     try {
       const dateRange = await this.fileStorageService.getMetadataDateRange();
       res.json(dateRange);

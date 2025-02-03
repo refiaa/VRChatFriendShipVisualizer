@@ -12,17 +12,17 @@ export class FileStorageService {
     const getAllFiles = async (dir: string): Promise<string[]> => {
       const files = await fs.readdir(dir, { withFileTypes: true });
       const paths = await Promise.all(
-        files.map(async (file) => {
-          const filePath = path.join(dir, file.name);
-          if (file.isDirectory()) {
-            return getAllFiles(filePath);
-          } else if (file.name.endsWith(".json")) {
-            return path.relative(this.metadataDir, filePath);
-          }
-          return null;
-        }),
+          files.map(async (file) => {
+            const filePath = path.join(dir, file.name);
+            if (file.isDirectory()) {
+              return getAllFiles(filePath);
+            } else if (file.name.endsWith(".json")) {
+              return path.relative(this.metadataDir, filePath);
+            }
+            return null;
+          })
       );
-      return paths.flat().filter((path): path is string => path !== null);
+      return paths.flat().filter((p): p is string => p !== null);
     };
 
     return getAllFiles(this.metadataDir);
@@ -43,9 +43,9 @@ export class FileStorageService {
   }> {
     try {
       const metadataExists = await fs
-        .access(this.metadataDir)
-        .then(() => true)
-        .catch(() => false);
+          .access(this.metadataDir)
+          .then(() => true)
+          .catch(() => false);
 
       if (!metadataExists) {
         return { exists: false, start: null, end: null };
@@ -57,17 +57,17 @@ export class FileStorageService {
       }
 
       const dates = files
-        .map((filename) => {
-          const patterns = [/VRChat_(\d{4}-\d{2})-\d{2}/, /VRChat_\d+x\d+_(\d{4}-\d{2})-\d{2}/];
-          for (const pattern of patterns) {
-            const match = filename.match(pattern);
-            if (match) {
-              return match[1];
+          .map((filename) => {
+            const patterns = [/VRChat_(\d{4}-\d{2})-\d{2}/, /VRChat_\d+x\d+_(\d{4}-\d{2})-\d{2}/];
+            for (const pattern of patterns) {
+              const match = filename.match(pattern);
+              if (match) {
+                return match[1];
+              }
             }
-          }
-          return null;
-        })
-        .filter((date): date is string => date !== null);
+            return null;
+          })
+          .filter((date): date is string => date !== null);
 
       if (dates.length === 0) {
         return { exists: true, hasFiles: true, hasValidDates: false, start: null, end: null };
@@ -78,8 +78,8 @@ export class FileStorageService {
         exists: true,
         hasFiles: true,
         hasValidDates: true,
-        start: dates[0],
-        end: dates[dates.length - 1],
+        start: dates[0] ?? null,
+        end: dates[dates.length - 1] ?? null,
       };
     } catch (error) {
       console.error("Error getting metadata date range:", error);
