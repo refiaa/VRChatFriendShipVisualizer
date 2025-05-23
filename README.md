@@ -15,6 +15,11 @@
 
 </div>
 
+> [!WARNING]
+> Since this installer is not signed with a paid software certificate, a warning may appear when launching it.
+> If you wish to proceed, click “More info” and then select “Run anyway.”
+
+
 A web-based application that visualizes your VRChat friend network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
 
 Only photos taken while [**VRCX**](https://github.com/vrcx-team/VRCX) is running are supported. In addition, only photos taken with the `screenshot helper` **enabled** in VRCX can be used.
