@@ -1,7 +1,9 @@
+<p align='center'>
+    <img src="https://capsule-render.vercel.app/api?type=waving&color=78E6FF&height=300&section=header&text=Friend%20Network%20Viewer&fontSize=60&animation=fadeIn&fontAlignY=38&desc=for%20VRChat&fontColor=FFFFFF&descAlignY=51&descAlign=80"/>
+</p>
+
 <div align="center">
-
-# VRChat Friend Network
-
+  
 <!-- Shields -->
 [![GitHub License](https://img.shields.io/github/license/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=red)](https://github.com/refiaa/VRChatFriendShipVisualizer/blob/master/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/refiaa/VRChatFriendShipVisualizer/total?color=orange)](https://github.com/refiaa/VRChatFriendShipVisualizer/releases/latest)
