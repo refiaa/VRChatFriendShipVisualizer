@@ -1,20 +1,7 @@
-<p align='center'>
-    <img src="https://capsule-render.vercel.app/api?type=waving&color=78E6FF&height=300&section=header&text=Friend%20Network%20Viewer&fontSize=60&animation=fadeIn&fontAlignY=38&desc=for%20VRChat&fontColor=FFFFFF&descAlignY=51&descAlign=80"/>
-</p>
-
 <div align="center">
 
-![preview](./image/main.png)
+# VRChat Friend Network
 
-</div>
-
-
-
-> [!WARNING]
-> Since this installer is not signed with a paid software certificate, a warning may appear when launching it.
-> If you wish to proceed, click “More info” and then select “Run anyway.”
-
-  
 <!-- Shields -->
 [![GitHub License](https://img.shields.io/github/license/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=red)](https://github.com/refiaa/VRChatFriendShipVisualizer/blob/master/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/refiaa/VRChatFriendShipVisualizer/total?color=orange)](https://github.com/refiaa/VRChatFriendShipVisualizer/releases/latest)
@@ -23,6 +10,14 @@
 [![GitHub Closed PRs](https://img.shields.io/github/issues-pr-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=blue)](https://github.com/refiaa/VRChatFriendShipVisualizer/pulls?q=is%3Apr+is%3Aclosed)
 [![GitHub Closed Issues](https://img.shields.io/github/issues-closed/refiaa/VRChatFriendShipVisualizer?style=flat-round&color=purple)](https://github.com/refiaa/VRChatFriendShipVisualizer/issues?q=is%3Aissue+is%3Aclosed)
 
+
+![preview](./image/main.png)
+
+</div>
+
+> [!WARNING]
+> Since this installer is not signed with a paid software certificate, a warning may appear when launching it.
+> If you wish to proceed, click “More info” and then select “Run anyway.”
 
 
 A web-based application that visualizes your VRChat friend network using interactive D3.js graphs. Easily scan your VRChat photos, generate metadata, and explore connections between players through an intuitive and dynamic interface.
@@ -166,5 +161,3 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of notable changes and updates.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
-
