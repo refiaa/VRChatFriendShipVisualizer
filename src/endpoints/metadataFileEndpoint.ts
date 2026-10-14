@@ -6,7 +6,8 @@ export class MetadataFileEndpoint {
 
   async handle(req: Request, res: Response): Promise<void> {
     try {
-      const filename: string = req.params["filename"]!;
+      const param = req.params["filename"]!;
+      const filename: string = Array.isArray(param) ? param.join("/") : param;
       const data = await this.fileStorageService.readMetadataFile(filename);
       res.json(data);
     } catch (error) {

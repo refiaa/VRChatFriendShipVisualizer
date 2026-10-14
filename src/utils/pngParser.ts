@@ -26,7 +26,11 @@ export class PNGParser {
     }
 
     const chunks = this.parseChunks(data);
-    const iTXtChunk = chunks.find((chunk) => chunk.type === "iTXt");
+    const iTXtChunk = chunks.find(
+      (chunk) =>
+        chunk.type === "iTXt" &&
+        !this.parseITXtChunk(chunk.data).trimStart().startsWith("<")
+    );
 
     if (!iTXtChunk) {
       return {

@@ -43,9 +43,9 @@ app.use("/icon", express.static(path.join(__dirname, "../icon")));
 const server = app.listen(PORT, () => {
   const address = server.address();
   if (address && typeof address === "object") {
-    console.log(`Server is running on port ${address.port}`);
+    console.log(`Server is running on port ${address.port} | http://localhost:${address.port}`);
   } else {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT} | http://localhost:${PORT}`);
   }
 });
 
