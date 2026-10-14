@@ -26,28 +26,33 @@ export class PNGParser {
     }
 
     const chunks = this.parseChunks(data);
-    const iTXtChunk = chunks.find((chunk) => chunk.type === "iTXt");
-
-    if (!iTXtChunk) {
-      return {
-        timestamp: new Date().toISOString(),
-        filename: path.basename(this.filePath),
-        metadata: {},
-      };
+    for (const chunk of chunks) {
+      if (chunk.type !== "iTXt") continue;
+      const parsed = this.tryParseJSONObject(this.parseITXtChunk(chunk.data));
+      if (parsed) {
+        return {
+          ...parsed,
+          timestamp: new Date().toISOString(),
+          filename: path.basename(this.filePath),
+        };
+      }
     }
 
+    return {
+      timestamp: new Date().toISOString(),
+      filename: path.basename(this.filePath),
+      metadata: {},
+    };
+  }
+
+  private tryParseJSONObject(text: string): Record<string, unknown> | null {
     try {
-      const metadata = this.parseITXtChunk(iTXtChunk.data);
-      return {
-        ...JSON.parse(metadata),
-        timestamp: new Date().toISOString(),
-        filename: path.basename(this.filePath),
-      };
-    } catch (error) {
-      console.error("Raw iTXt chunk data:", iTXtChunk.data.toString("utf-8"));
-      throw new Error(
-          `Failed to parse metadata: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      const value: unknown = JSON.parse(text);
+      return value !== null && typeof value === "object" && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : null;
+    } catch {
+      return null;
     }
   }
 

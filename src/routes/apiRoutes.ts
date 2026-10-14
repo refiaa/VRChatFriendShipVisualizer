@@ -68,7 +68,7 @@ export function createRouter(
    * GET /metadata/file/:filename(*)
    * Retrieves content of a specific metadata file
    */
-  router.get("/metadata/file/:filename(*)", (_req: Request, res: Response, next: NextFunction) =>
+  router.get("/metadata/file/*filename", (_req: Request, res: Response, next: NextFunction) =>
       metadataFileEndpoint.handle(_req, res).catch(next)
   );
 
