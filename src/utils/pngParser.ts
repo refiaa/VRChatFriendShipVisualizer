@@ -79,20 +79,22 @@ export class PNGParser {
   }
 
   private parseITXtChunk(data: Buffer): string {
-    let pos = 0;
+    let pos = data.indexOf(0);
+    if (pos === -1 || pos + 3 > data.length) {
+      throw new Error("Invalid iTXt chunk header");
+    }
 
-    while (data[pos] !== 0) pos++;
-    pos++;
+    pos = data.indexOf(0, pos + 3);
+    if (pos === -1) {
+      throw new Error("Invalid iTXt language tag");
+    }
 
-    pos += 2;
+    pos = data.indexOf(0, pos + 1);
+    if (pos === -1) {
+      throw new Error("Invalid iTXt translated keyword");
+    }
 
-    while (data[pos] !== 0) pos++;
-    pos++;
-
-    while (data[pos] !== 0) pos++;
-    pos++;
-
-    const textData = data.slice(pos);
+    const textData = data.slice(pos + 1);
     return textData.toString("utf-8");
   }
 }
