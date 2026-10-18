@@ -26,28 +26,33 @@ export class PNGParser {
     }
 
     const chunks = this.parseChunks(data);
-    const iTXtChunk = chunks.find((chunk) => chunk.type === "iTXt");
-
-    if (!iTXtChunk) {
-      return {
-        timestamp: new Date().toISOString(),
-        filename: path.basename(this.filePath),
-        metadata: {},
-      };
+    for (const chunk of chunks) {
+      if (chunk.type !== "iTXt") continue;
+      const parsed = this.tryParseJSONObject(this.parseITXtChunk(chunk.data));
+      if (parsed) {
+        return {
+          ...parsed,
+          timestamp: new Date().toISOString(),
+          filename: path.basename(this.filePath),
+        };
+      }
     }
 
+    return {
+      timestamp: new Date().toISOString(),
+      filename: path.basename(this.filePath),
+      metadata: {},
+    };
+  }
+
+  private tryParseJSONObject(text: string): Record<string, unknown> | null {
     try {
-      const metadata = this.parseITXtChunk(iTXtChunk.data);
-      return {
-        ...JSON.parse(metadata),
-        timestamp: new Date().toISOString(),
-        filename: path.basename(this.filePath),
-      };
-    } catch (error) {
-      console.error("Raw iTXt chunk data:", iTXtChunk.data.toString("utf-8"));
-      throw new Error(
-          `Failed to parse metadata: ${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      const value: unknown = JSON.parse(text);
+      return value !== null && typeof value === "object" && !Array.isArray(value)
+        ? (value as Record<string, unknown>)
+        : null;
+    } catch {
+      return null;
     }
   }
 
@@ -74,20 +79,22 @@ export class PNGParser {
   }
 
   private parseITXtChunk(data: Buffer): string {
-    let pos = 0;
+    let pos = data.indexOf(0);
+    if (pos === -1 || pos + 3 > data.length) {
+      throw new Error("Invalid iTXt chunk header");
+    }
 
-    while (data[pos] !== 0) pos++;
-    pos++;
+    pos = data.indexOf(0, pos + 3);
+    if (pos === -1) {
+      throw new Error("Invalid iTXt language tag");
+    }
 
-    pos += 2;
+    pos = data.indexOf(0, pos + 1);
+    if (pos === -1) {
+      throw new Error("Invalid iTXt translated keyword");
+    }
 
-    while (data[pos] !== 0) pos++;
-    pos++;
-
-    while (data[pos] !== 0) pos++;
-    pos++;
-
-    const textData = data.slice(pos);
+    const textData = data.slice(pos + 1);
     return textData.toString("utf-8");
   }
 }
